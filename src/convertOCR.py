@@ -2,21 +2,19 @@
 import cv2
 import os
 import pandas as pd
-import config
+import src.config as config
+# import config
+# from bitwiseOperation import bit_operation
+# video_list = os.listdir("C:\\Users\\Sewoong\\Desktop\\Develop\\opgg-ocr\\data\\video")
 
-from bitwiseOperation import bit_operation
+from src.bitwiseOperation import bit_operation
 from google.cloud import vision
 from google.cloud.vision_v1 import types
 from PIL import Image
+from tqdm import tqdm
 
 # Read the video from specified path
-VIDEO_PATH = "./data/video"
-video_list = os.listdir(VIDEO_PATH)
-API_KEY = 'AIzaSyBFc0XjsSHhnDpW-N0qtZ3uS11iLxxxx_g'
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "op-gg-credential.json"
-
-# def pre_process(p_df):
-    # 전처리 해주세요!!!
+video_list = os.listdir(config.VIDEO_PATH)
 
 def inside_finder(coord, row, w, h):
     x1, x2, y1, y2 = coord[0]*w, coord[1]*w, coord[2]*h, coord[3]*h
@@ -28,7 +26,7 @@ def inside_finder(coord, row, w, h):
 def detect_text(content, w, h):
     client = vision.ImageAnnotatorClient()
     image = types.Image(content=content)
-    
+
     response = client.text_detection(image=image)
     texts = response.text_annotations
 
@@ -53,47 +51,53 @@ def detect_text(content, w, h):
             'vertex_2': vertex_2, 'vertex_3': vertex_3, 'text': temp_text}
 
     m_df = pd.DataFrame(data)
-    
-    d = {x:[] for x in list(config.coord_dict.keys())}
+
+    d = {x: [] for x in list(config.coord_dict.keys())}
     df = pd.DataFrame(columns=list(config.coord_dict.keys())).T
     df['text_list'] = [[] for x in range(len(df))]
-    
-    for k, v in config.coord_dict.items() :
-        for i, row in enumerate(m_df.itertuples()) :
-            if inside_finder(v, row, w, h) :
+
+    for k, v in config.coord_dict.items():
+        for i, row in enumerate(m_df.itertuples()):
+            if inside_finder(v, row, w, h):
                 d[k].append(row.text)
         df.loc[k]['text_list'] = d[k]
-    
+
     return df
 
-# create image storage file if file doesn't exist
-try:
-    if not(os.path.isdir("./data/image")):
-        os.makedirs(os.path.join("./data/image"))
-except OSError as e:
-    if e.errno != errno.EEXIST:
-        print("Failed to create directory!!!!!")
-        raise
+def run():
+    seconds = 30
+    for video in video_list:
+        cam = cv2.VideoCapture(config.VIDEO_PATH + "\\" + video)
+        length = cam.get(cv2.CAP_PROP_FRAME_COUNT)
+        fps = cam.get(cv2.CAP_PROP_FPS)
+        multiplier = fps * seconds
 
-# frame
-currentframe = 0
-for video in video_list:
-    cam = cv2.VideoCapture(VIDEO_PATH + "/" + video)
-    df_result = pd.DataFrame(columns=config.cols).T
-    while(True):
-        ret, frame = cam.read()
-        if ret:
-            m_frame = bit_operation(frame)
-            success, encoded_image = cv2.imencode('.png', m_frame)
-            w, h = encoded_image.shape[1], encoded_image.shape[0]
-            content = encoded_image.tobytes()
-            df = detect_text(content, w, h)
-            df_result['frame_'+str(currentframe)] = df.text_list
-            currentframe += 1
-        else:
-            break
+        w, h = cam.get(3), cam.get(4)
+        df_result = pd.DataFrame(columns=config.cols).T
 
-    cam.release()
-    cv2.destroyAllWindows()
-    print(df_result)
-    df.to_csv("opgg_data.csv", encoding="utf8")
+        current_sec = 0
+        p_frame = 0
+        pbar = tqdm(total=int(length))
+        while(True):
+            ret, frame = cam.read()
+            frameId = int(cam.get(1))
+
+            if ret:
+                if frameId % multiplier < 1:
+                    m_frame = bit_operation(frame)
+                    success, encoded_image = cv2.imencode('.png', m_frame)
+                    content = encoded_image.tobytes()
+
+                    df = detect_text(content, w, h)
+                    df_result['frame_'+str(current_sec)] = df.text_list
+                    current_sec += seconds
+
+                    pbar.update(frameId - p_frame)
+                    p_frame = frameId
+            else:
+                break
+
+        pbar.close()
+        cam.release()
+        cv2.destroyAllWindows()
+        df_result.to_csv(config.CSV_PATH + "\\" + video + ".csv", encoding="utf8")
