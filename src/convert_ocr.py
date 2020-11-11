@@ -31,7 +31,11 @@ def detect_text(content, w, h):
     texts = response.text_annotations
 
     # initialize lists
-    temp_text, vertex_0, vertex_1, vertex_2, vertex_3 = ([], ) * 5
+    temp_text = []
+    vertex_0 = []
+    vertex_1 = []
+    vertex_2 = []
+    vertex_3 = []
 
     # extract information for the reuslt
     for i in range(1, len(texts)):
