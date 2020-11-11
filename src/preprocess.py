@@ -46,3 +46,72 @@ def judge_kda(x) :
         else :
             return np.nan
 
+
+def make_inc(a, ths) :
+    a_inc = []
+    i = 0
+    temp = 0
+    coin = 0
+    while i < len(a) :
+        if np.isnan(a[i]) :
+            a_inc.append(np.nan)
+            i += 1
+        else :
+            if (a[i] >= temp) & (a[i]<1000) :
+                a_inc.append(a[i])
+                temp = a[i]
+                i += 1
+            else :
+                if coin > ths :
+                    i -= ths
+                    coin = 0
+                    temp = a[i-1]
+                    a_inc = a_inc[:-(ths+2)]
+                    a_inc.append(np.nan)
+                    a_inc.append(a[i-1])
+                else :
+                    a_inc.append(np.nan)
+                    i += 1
+                    coin += 1
+    return a_inc
+
+
+def make_dec(a, ths) :
+    a_temp = []
+    i = len(a)-1
+    temp = 0
+    coin = 0
+    while i >= 0 :
+        if np.isnan(a[i]) :
+            a_temp.append(np.nan)
+            i -= 1
+        else :
+            if (a[i] <= temp) & (a[i]<1000) :
+                a_temp.append(a[i])
+                temp = a[i]
+                i -= 1
+            else :
+                if coin > ths :
+                    i += ths
+                    coin = 0
+                    temp = a[i+1]
+                    a_temp = a_temp[:-(ths+2)]
+                    a_temp.append(np.nan)
+                    a_temp.append(a[i+1])
+                else :
+                    a_temp.append(np.nan)
+                    i -= 1
+                    coin += 1
+    
+    a_dec = [x for x in reversed(a_temp)]
+    return a_dec
+
+
+def make_monotonic(a, ths) :
+    a_mono = []
+    for i, (x,y) in enumerate(zip(make_dec(a, ths), make_inc(a, ths))) :
+        if x == y :
+            a_mono.append(x)
+        else :
+            a_mono.append(np.nan)
+    return a_mono
