@@ -64,34 +64,53 @@ def detect_text(content, w, h):
     
     return df
 
-# create image storage file if file doesn't exist
-try:
-    if not(os.path.isdir("./data/image")):
-        os.makedirs(os.path.join("./data/image"))
-except OSError as e:
-    if e.errno != errno.EEXIST:
-        print("Failed to create directory!!!!!")
-        raise
 
-# frame
-currentframe = 0
-for video in video_list:
+def convert_video_to_df(VIDEO_PATH, video, time_interval_sec) :
     cam = cv2.VideoCapture(VIDEO_PATH + "/" + video)
-    df_result = pd.DataFrame(columns=config.cols).T
-    while(True):
+    w, h  = cam.get(3), cam.get(4)
+    fps = cam.get(cv2.CAP_PROP_FPS)
+    seconds = time_interval_sec
+    multiplier = fps * seconds    
+    
+    df_result = pd.DataFrame(columns=cols).T    
+    current_sec = 0    
+    while True:
+        frameId = int(round(cam.get(1)))
         ret, frame = cam.read()
-        if ret:
-            m_frame = bit_operation(frame)
-            success, encoded_image = cv2.imencode('.png', m_frame)
-            w, h = encoded_image.shape[1], encoded_image.shape[0]
-            content = encoded_image.tobytes()
-            df = detect_text(content, w, h)
-            df_result['frame_'+str(currentframe)] = df.text_list
-            currentframe += 1
+        if ret :
+            if frameId % multiplier < 1:
+                success, encoded_image = cv2.imencode('.png', frame)
+                content = encoded_image.tobytes()
+                temp_df = detect_text(content, w, h)
+                df_result['sec_'+str(current_sec)] = temp_df.text_list
+                current_sec += seconds
         else:
             break
+    return df_result.T
 
-    cam.release()
-    cv2.destroyAllWindows()
-    print(df_result)
-    df.to_csv("opgg_data.csv", encoding="utf8")
+for i, video in enumerate(video_list) :
+    df_result = convert_video_to_df(VIDEO_PATH, video, 1)
+    df_result.to_csv('opgg_video_'+str(i)+('.csv'), encoding='utf-8')
+
+
+#frame
+#currentframe = 0
+#for video in video_list:
+#    cam = cv2.VideoCapture(VIDEO_PATH + "/" + video)
+#    df_result = pd.DataFrame(columns=config.cols).T
+#    while(True):
+#        ret, frame = cam.read()
+#        if ret:
+#            m_frame = bit_operation(frame)
+#            success, encoded_image = cv2.imencode('.png', m_frame)
+#            w, h = encoded_image.shape[1], encoded_image.shape[0]
+#            content = encoded_image.tobytes()
+#            df = detect_text(content, w, h)
+#            df_result['frame_'+str(currentframe)] = df.text_list
+#            currentframe += 1
+#        else:
+#            break
+#cam.release()
+#cv2.destroyAllWindows()
+#print(df_result)
+#df_result.to_csv("opgg_data.csv", encoding="utf8")
