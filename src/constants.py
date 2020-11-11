@@ -11,6 +11,7 @@ API_KEY = 'AIzaSyBFc0XjsSHhnDpW-N0qtZ3uS11iLxxxx_g'
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = CURRENT_PATH + \
     "\\op-gg-credential.json"
 
+# Coordinates of the required information
 coord_dict = {'blue_top_port': (0.0, 0.03646, 0.11111, 0.18519),
               'blue_jug_port': (0.0, 0.03646, 0.19444, 0.27778),
               'blue_mid_port': (0.0, 0.03646, 0.28704, 0.37963),
@@ -49,6 +50,7 @@ coord_dict = {'blue_top_port': (0.0, 0.03646, 0.11111, 0.18519),
               'red_sup_cs': (0.53125, 0.55208, 0.94444, 1.0)
               }
 
+# Column information of the dataframe
 cols = ['blue_top_port', 'blue_jug_port', 'blue_mid_port', 'blue_bot_port',
         'blue_sup_port', 'red_top_port', 'red_jug_port', 'red_mid_port',
         'red_bot_port', 'red_sup_port', 'blue_teamgold', 'red_teamgold',

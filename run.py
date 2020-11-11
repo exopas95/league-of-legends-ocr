@@ -1,4 +1,4 @@
-import src.convertOCR as convertOCR
+import src.convert_ocr as convert_ocr
 
 if __name__ == "__main__":
-    convertOCR.run()
+    convert_ocr.run()

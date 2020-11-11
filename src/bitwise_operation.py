@@ -1,11 +1,11 @@
 import cv2
-import src.config as config
-# import config
+import src.constants as constants
+# import constants
 
 # Masking frame
 def bit_operation(frame):
     # read mask image
-    m_image = cv2.imread(config.IMAGE_PATH + '\\img_mask.png')
+    m_image = cv2.imread(constants.IMAGE_PATH + '\\img_mask.png')
 
     # convert colors to black and white
     image_to_gray = cv2.cvtColor(m_image, cv2.COLOR_BGR2GRAY)
