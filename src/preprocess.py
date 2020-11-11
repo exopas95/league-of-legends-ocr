@@ -191,12 +191,61 @@ def get_kda(df, side, pos, kda) :
             l.append(np.nan)
     return make_monotonic(l, 5)
 
+
+def get_notice(df) :
+    blue = []
+    red = []
+    for x in df['notice'].values :
+        if len(x)>0 :
+            if '파랑' in x :
+                if '남작' in x :
+                    red.append(np.nan)
+                    blue.append('nashor')
+                elif '드래곤' in x :
+                    red.append(np.nan)
+                    blue.append('drake')
+                elif ('포탑' in x) :
+                    if '번째' in x :
+                        blue.append('turret')
+                        red.append(np.nan)
+                    else :
+                        red.append('turret')
+                        blue.append(np.nan)
+                else :
+                    red.append(np.nan)
+                    blue.append('unknown')
+            elif '빨강' in x :
+                if '남작' in x :
+                    blue.append(np.nan)
+                    red.append('nashor')
+                elif '드래곤' in x :
+                    blue.append(np.nan)
+                    red.append('drake')
+                elif ('포탑' in x) :
+                    if '번째' in x :
+                        blue.append(np.nan)
+                        red.append('turret')
+                    else :
+                        blue.append('turret')
+                        red.append(np.nan)
+                else :
+                    blue.append(np.nan)
+                    red.append('unknown')
+            else :
+                blue.append(np.nan)
+                red.append(np.nan)
+        else :
+            blue.append(np.nan)
+            red.append(np.nan)
+    return blue, red
+
 def result_process(df) :
     game_df = get_game_df(df)
-    processed_df = pd.DataFrame({'timestamp' : get_timestamp(game_df),
-                                'red_teamgold' : get_teamgold(game_df, 'red'),
-                                'red_top_cs' : get_cs(game_df, 'red', 'top'),
-                                'red_top_k' : get_kda(game_df, 'red', 'top', 'k'),
-                                'red_top_d' : get_kda(game_df, 'red', 'top', 'd'),
-                                'red_top_a' : get_kda(game_df, 'red', 'top', 'a')}).set_index('timestamp')
+    processed_df = pd.DataFrame({'timestamp' : get_timestamp(play_time),
+                                'red_teamgold' : get_teamgold(play_time, 'red'),
+                                'red_top_cs' : get_cs(play_time, 'red', 'top'),
+                                'red_top_k' : get_kda(play_time, 'red', 'top', 'k'),
+                                'red_top_d' : get_kda(play_time, 'red', 'top', 'd'),
+                                'red_top_a' : get_kda(play_time, 'red', 'top', 'a'),
+                                'red_notice' : get_notice(play_time)[0]}).set_index('timestamp')
     return processed_df
