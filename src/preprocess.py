@@ -115,3 +115,88 @@ def make_monotonic(a, ths) :
         else :
             a_mono.append(np.nan)
     return a_mono
+
+
+def get_game_df(df) :
+    df['timestamp'] = df['timestamp'].apply(lambda x: np.nan if len(x)==0 else x)
+    timestamps = df.dropna(subset=['timestamp']).index
+    return df.loc[timestamps[0]:timestamps[-1]]
+
+
+def get_timestamp(df) : 
+    l = []
+    for x in df.timestamp.values :
+        try :
+            if bool(re.match(r'[\d\d]+:[\d\d]+', x[0])) :
+                l.append(x[0])
+            else :
+                l.append(np.nan)
+        except :
+            l.append(x)
+    return l
+
+def get_teamgold(df, side) :
+    l = []
+    def isgold(l, side) :
+        s = np.nan
+        if side =='blue' :
+            l = reversed(l)
+        elif side == 'red' :
+            l = l            
+        for x in l :
+            if len(x) > 3 :
+                s = x
+                break
+            else :
+                continue
+        return s
+
+    for x in df[side+'_teamgold'].values :
+        try :
+            raw_gold = isgold(x, side)
+            gold = float(re.sub(',', '.', re.sub(r'[^0-9.,]', '', raw_gold)))
+            l.append(gold)            
+        except :
+            l.append(np.nan)
+    return make_monotonic(l, 5)
+
+
+def get_cs(df, side, pos) :
+    l = []
+    for x in df[side+'_'+pos+'_cs'].values :
+        if len(x) > 0 :
+            try :
+                l.append(float(x[0]))
+            except :
+                l.append(np.nan)
+        else :
+            l.append(np.nan)
+    return make_monotonic(l, 5)
+
+def get_kda(df, side, pos, kda) :
+    l=[]
+    if kda == 'k' :
+        kda_index = 0
+    elif kda == 'd' :
+        kda_index = 1
+    elif kda == 'a' :
+        kda_index = 2
+    for x in df[side+'_'+pos+'_kda'].values :
+        if len(x) > 0 :
+            try :
+                l.append(judgekda(x[0])[kda_index])
+            except :
+                l.append(np.nan)
+        else :
+            l.append(np.nan)
+    return make_monotonic(l, 5)
+
+def result_process(df) :
+    game_df = get_game_df(df)
+    processed_df = pd.DataFrame({'timestamp' : get_timestamp(game_df),
+                                'red_teamgold' : get_teamgold(game_df, 'red'),
+                                'red_top_cs' : get_cs(game_df, 'red', 'top'),
+                                'red_top_k' : get_kda(game_df, 'red', 'top', 'k'),
+                                'red_top_d' : get_kda(game_df, 'red', 'top', 'd'),
+                                'red_top_a' : get_kda(game_df, 'red', 'top', 'a')}).set_index('timestamp')
+    return processed_df

@@ -2,7 +2,9 @@
 import cv2
 import os
 import pandas as pd
+
 import config
+import preprocess
 
 from bitwiseOperation import bit_operation
 from google.cloud import vision
@@ -91,7 +93,7 @@ def convert_video_to_df(VIDEO_PATH, video, time_interval_sec) :
 for i, video in enumerate(video_list) :
     df_result = convert_video_to_df(VIDEO_PATH, video, 1)
     df_result.to_csv('opgg_video_'+str(i)+('.csv'), encoding='utf-8')
-
+    processed_df = preprocess.result_process(df_result)
 
 #frame
 #currentframe = 0
