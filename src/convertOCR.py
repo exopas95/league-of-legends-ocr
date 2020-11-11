@@ -15,8 +15,6 @@ video_list = os.listdir(VIDEO_PATH)
 API_KEY = 'AIzaSyBFc0XjsSHhnDpW-N0qtZ3uS11iLxxxx_g'
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "op-gg-credential.json"
 
-# def pre_process(p_df):
-    # 전처리 해주세요!!!
 
 def inside_finder(coord, row, w, h):
     x1, x2, y1, y2 = coord[0]*w, coord[1]*w, coord[2]*h, coord[3]*h
