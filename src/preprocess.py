@@ -2,15 +2,22 @@ import numpy as np
 import pandas as pd
 import re
 
+
+""" Returns [kill, death, assist] if input word can be decrypted else nan
+    :param x:
+        Input word will define which is kda or not
+    :type x:
+        str
+""""
 def judge_kda(x) :
     try :
         if np.isnan(x) :
             return x
     except :
-        word = re.sub(r'[^0-9/]', '', x)
+        word = re.sub(r'[^0-9/]', '', x)            # These are only characters required
 
         n_slash = 0
-        n_seven = 0
+        n_seven = 0                                 # Vision reads '/' to '7' usually
         seven_index = []
         for i, char in enumerate(word) :
             if (char == '/') :
@@ -19,25 +26,25 @@ def judge_kda(x) :
                 n_seven += 1
                 seven_index.append(i)
 
-        if n_slash == 2 :
+        if n_slash == 2 :                           # Best case
             kda = re.split('/', word)
 
         else :
-            if (n_seven == 1) & (n_slash == 1) :
+            if (n_seven == 1) & (n_slash == 1) :    # '7' can be '/' or real value, but if there are only one '7', no other possibilities
                 kda = re.split('/|7', word)
 
             else :
-                rep = (('77', 'a/'), ('7/', 'a/'), ('777', '/a/'), ('7777', 'a/a/'))
+                rep = (('77', 'a/'), ('7/', 'a/'), ('777', '/a/'), ('7777', 'a/a/'))        # Assume there are no possibilities to obtain 70+ k,d,a
                 for r in reversed(rep) :
                     word = word.replace(*r)
                 kda = re.split('/|7', word)
-                kda = list(filter(lambda x: x != '', kda))
-                if len(word)-1 in seven_index :
+                kda = list(filter(lambda x: x != '', kda))                                  # Make values not empty
+                if len(word)-1 in seven_index :                                             # Push 7 for remain possibilities (e.g.7/0/7) 
                     kda[-1] += '7'
 
-        kda = [re.sub('a', '7', x) for x in kda]
+        kda = [re.sub('a', '7', x) for x in kda]    # substitute 'a' to '7'
 
-        if len(kda) == 3 :
+        if len(kda) == 3 :                          # If it splited well, length of list should be 3
             try :
                 kda = [int(x) for x in kda]
                 return kda
@@ -46,7 +53,18 @@ def judge_kda(x) :
         else :
             return np.nan
 
-
+""" Make a monotonic increasing sequence from the left
+    :param a:
+        Input array try to make monotonic
+    :type a:
+        list
+    
+    :param ths:
+        To determine the value that bounces up, 
+        a threshold that determines how many values have gone down after bouncing up
+    :type ths:
+        int
+""""
 def make_inc(a, ths) :
     a_inc = []
     i = 0
@@ -57,28 +75,38 @@ def make_inc(a, ths) :
             a_inc.append(np.nan)
             i += 1
         else :
-            if (a[i] >= temp) & (a[i]<1000) :
-                a_inc.append(a[i])
+            if (a[i] >= temp) & (a[i]<1000) :       # Check if value is increasing
+                a_inc.append(a[i])                  # Assume there is no possibility to cs exceed 1000
                 temp = a[i]
                 i += 1
             else :
-                if coin > ths :
-                    i -= ths
-                    coin = 0
-                    temp = a[i-1]
+                if coin > ths :                     # If value continues to be below, 
+                    i -= ths                        # think that the corresponding temp is the bouncing up value 
+                    coin = 0                        # and go back and save it as nan
+                    temp = a[i-1]                   # and place the previous value as temp
                     a_inc = a_inc[:-(ths+2)]
                     a_inc.append(np.nan)
                     a_inc.append(a[i-1])
-                else :
-                    a_inc.append(np.nan)
-                    i += 1
-                    coin += 1
+                else :                              
+                    a_inc.append(np.nan)            # For the moment consider it as a bouncing value and save nan
+                    i += 1                          
+                    coin += 1                       
     return a_inc
 
-
+""" Make a monotonic decreasing sequence from the right
+    :param a:
+        Input array try to make monotonic
+    :type a:
+        list
+    
+    :param ths:
+        Determines how many values have gone down after bouncing down
+    :type ths:
+        int
+""""
 def make_dec(a, ths) :
     a_temp = []
-    i = len(a)-1
+    i = len(a)-1                                    # Start from back
     temp = 0
     coin = 0
     while i >= 0 :
@@ -86,7 +114,7 @@ def make_dec(a, ths) :
             a_temp.append(np.nan)
             i -= 1
         else :
-            if (a[i] <= temp) & (a[i]<1000) :
+            if (a[i] <= temp) & (a[i]<1000) :       # Check if value is decreasing
                 a_temp.append(a[i])
                 temp = a[i]
                 i -= 1
@@ -103,31 +131,53 @@ def make_dec(a, ths) :
                     i -= 1
                     coin += 1
     
-    a_dec = [x for x in reversed(a_temp)]
+    a_dec = [x for x in reversed(a_temp)]           # Reverse outcome list
     return a_dec
 
 
+""" Join two pseudo-monotonic array as one
+    :param a:
+        Input array try to make monotonic
+    :type a:
+        list
+    
+    :param ths:
+        Determines how many values have gone down after bouncing up or down
+    :type ths:
+        int
+""""
 def make_monotonic(a, ths) :
     a_mono = []
     for i, (x,y) in enumerate(zip(make_dec(a, ths), make_inc(a, ths))) :
-        if x == y :
-            a_mono.append(x)
+        if x == y :                                 # If the two functions do not produce the same value, 
+            a_mono.append(x)                        # determine that there is an error and receive a nan
         else :
             a_mono.append(np.nan)
     return a_mono
 
-
+""" Remove before and after of the game and remain the start to the end of game with timestamp
+    :param df:
+        Input dataframe (Outcome from Vision) which will be preprocessed 
+    :type df:
+        dataframe
+""""
 def get_game_df(df) :
-    df['timestamp'] = df['timestamp'].apply(lambda x: np.nan if len(x)==0 else x)
-    timestamps = df.dropna(subset=['timestamp']).index
-    return df.loc[timestamps[0]:timestamps[-1]]
+    df['timestamp'] = df['timestamp'].apply(lambda x: np.nan if len(x)==0 else x)   # Replace empty list into nan
+    timestamps = df.dropna(subset=['timestamp']).index                              # get index of rows with timestamp
+    return df.loc[timestamps[0]:timestamps[-1]]                                     # Get remain of the start to the end of a game
 
 
+""" Get list of timestamp as string from input dataframe 
+    :param df:
+        Input dataframe (Outcome from Vision) which will be preprocessed 
+    :type df:
+        dataframe
+""""
 def get_timestamp(df) : 
     l = []
     for x in df.timestamp.values :
         try :
-            if bool(re.match(r'[\d\d]+:[\d\d]+', x[0])) :
+            if bool(re.match(r'[\d\d]+:[\d\d]+', x[0])) :           # Find only the value that fits the form 'dd:dd' or nan 
                 l.append(x[0])
             else :
                 l.append(np.nan)
@@ -135,17 +185,29 @@ def get_timestamp(df) :
             l.append(x)
     return l
 
+
+""" Get list of teamgold aligned by timestamp as float from input dataframe
+    :param df:
+        Input dataframe (Outcome from Vision) which will be preprocessed 
+    :type df:
+        dataframe
+
+    :param side:
+        'red' or 'blue' 
+    :type side:
+        str
+""""
 def get_teamgold(df, side) :
     l = []
-    def isgold(l, side) :
+    def isgold(l, side) :           # Internal method to assert value represents gold
         s = np.nan
         if side =='blue' :
             l = reversed(l)
         elif side == 'red' :
             l = l            
         for x in l :
-            if len(x) > 3 :
-                s = x
+            if len(x) > 3 :         # There are noise texts while reading team gold location('c', 'C', 'G', etc.) 
+                s = x               # If team gold read well, the length is over four.(e.g.len('2.5k')=4)
                 break
             else :
                 continue
@@ -154,25 +216,63 @@ def get_teamgold(df, side) :
     for x in df[side+'_teamgold'].values :
         try :
             raw_gold = isgold(x, side)
-            gold = float(re.sub(',', '.', re.sub(r'[^0-9.,]', '', raw_gold)))
-            l.append(gold)            
-        except :
+            gold = float(re.sub(',', '.', re.sub(r'[^0-9.,]', '', raw_gold)))       # Decimal point can be read as comma, so replace it
+            l.append(gold)                                                          # with only period and digits,
+        except :                                                                    # gold can be easily converted to float
             l.append(np.nan)
-    return make_monotonic(l, 5)
+    return make_monotonic(l, 5)                                                     # team gold is monotonically increasing
 
 
+""" Get list of cs aligned by timestamp as float from input dataframe
+    :param df:
+        Input dataframe (Outcome from Vision) which will be preprocessed 
+    :type df:
+        dataframe
+
+    :param side:
+        'red' or 'blue' 
+    :type side:
+        str
+
+    :param pos:
+        'top' / 'jug' / 'mid' / 'bot' / 'sup' 
+    :type pos:
+        str
+""""
 def get_cs(df, side, pos) :
     l = []
     for x in df[side+'_'+pos+'_cs'].values :
         if len(x) > 0 :
-            try :
+            try :                                   # Assume the value is one and only
                 l.append(float(x[0]))
             except :
                 l.append(np.nan)
         else :
             l.append(np.nan)
-    return make_monotonic(l, 5)
+    return make_monotonic(l, 5)                     # cs is monotonically increasing
 
+
+""" Get list of kda aligned by timestamp as float from input dataframe
+    :param df:
+        Input dataframe (Outcome from Vision) which will be preprocessed 
+    :type df:
+        dataframe
+
+    :param side:
+        'red' or 'blue' 
+    :type side:
+        str
+
+    :param pos:
+        'top' / 'jug' / 'mid' / 'bot' / 'sup' 
+    :type pos:
+        str
+
+    :param kda:
+        'k' / 'd' / 'a' 
+    :type pos:
+        str
+""""
 def get_kda(df, side, pos, kda) :
     l=[]
     if kda == 'k' :
@@ -184,16 +284,22 @@ def get_kda(df, side, pos, kda) :
     for x in df[side+'_'+pos+'_kda'].values :
         if len(x) > 0 :
             try :
-                l.append(judgekda(x[0])[kda_index])
-            except :
+                l.append(judgekda(x[0])[kda_index])         # Use Method Judgekda, which is on the top of this file 
+            except :                                        # Judge kda returns value with form of [kill, death, assist]
                 l.append(np.nan)
         else :
             l.append(np.nan)
-    return make_monotonic(l, 5)
+    return make_monotonic(l, 5)                             # kda is monotonically increasing
 
 
-def get_notice(df) :
-    blue = []
+""" Get tuple of list of notices(blue, red) from input dataframe
+    :param df:
+        Input dataframe (Outcome from Vision) which will be preprocessed 
+    :type df:
+        dataframe
+""""
+def get_notice(df) :                                # Hard coded
+    blue = []                                       # Need to add bag of words contains possible typing errors
     red = []
     for x in df['notice'].values :
         if len(x)>0 :
@@ -204,16 +310,16 @@ def get_notice(df) :
                 elif '드래곤' in x :
                     red.append(np.nan)
                     blue.append('drake')
-                elif ('포탑' in x) :
-                    if '번째' in x :
-                        blue.append('turret')
+                elif ('포탑' in x) :                # Turret will be recorded based on the team that breaks
+                    if '번째' in x :                # Announce notices perpetrator for the first turret
+                        blue.append('turret')       # (e.g.'파랑 팀이 첫 번째 포탑을 파괴했습니다')
                         red.append(np.nan)
                     else :
-                        red.append('turret')
-                        blue.append(np.nan)
+                        red.append('turret')        # Announce notices victim for other cases
+                        blue.append(np.nan)         # (e.g. '빨강 팀의 포탑이 파괴되었습니다')
                 else :
                     red.append(np.nan)
-                    blue.append('unknown')
+                    blue.append('unknown')          # Now, record 'unknown' when there are typing errors
             elif '빨강' in x :
                 if '남작' in x :
                     blue.append(np.nan)
@@ -237,25 +343,29 @@ def get_notice(df) :
         else :
             blue.append(np.nan)
             red.append(np.nan)
-    return blue, red
+    return blue, red                                # Return tuple, will be changed
 
+
+""" Make new dataframe with pre-processed values
+    Returns dataframe with columns of timestamp for a game, team gold, notice for each team, cs, kill, death, assist, for each team and lane
+    Set index as timestamp
+    When index is nan, there could be replay
+    :param df:
+        Input dataframe (Outcome from Vision) which will be preprocessed 
+    :type df:
+        dataframe
+""""
 def result_process(df) :
     game_df = get_game_df(df)
     processed_df = pd.DataFrame({'timestamp' : get_timestamp(game_df),
-<<<<<<< Updated upstream
-=======
                                 'red_top_port' : game_df.red_top_port.values
                                 'blue_top_port' : game_df.blue_top_port.values
 
->>>>>>> Stashed changes
                                 'red_teamgold' : get_teamgold(game_df, 'red'),
                                 'red_top_cs' : get_cs(game_df, 'red', 'top'),
                                 'red_top_k' : get_kda(game_df, 'red', 'top', 'k'),
                                 'red_top_d' : get_kda(game_df, 'red', 'top', 'd'),
                                 'red_top_a' : get_kda(game_df, 'red', 'top', 'a'),
-<<<<<<< Updated upstream
-                                'red_notice' : get_notice(game_df)[0]}).set_index('timestamp')
-=======
 
                                 'red_jug_cs' : get_cs(game_df, 'red', 'jug'),
                                 'red_jug_k' : get_kda(game_df, 'red', 'jug', 'k'),
@@ -307,5 +417,4 @@ def result_process(df) :
                                 'blue_sup_a' : get_kda(game_df, 'blue', 'sup', 'a'),
 
                                 'blue_notice' : get_notice(game_df)[1]}).set_index('timestamp')
->>>>>>> Stashed changes
     return processed_df
