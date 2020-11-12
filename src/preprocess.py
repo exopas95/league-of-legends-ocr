@@ -241,11 +241,11 @@ def get_notice(df) :
 
 def result_process(df) :
     game_df = get_game_df(df)
-    processed_df = pd.DataFrame({'timestamp' : get_timestamp(play_time),
-                                'red_teamgold' : get_teamgold(play_time, 'red'),
-                                'red_top_cs' : get_cs(play_time, 'red', 'top'),
-                                'red_top_k' : get_kda(play_time, 'red', 'top', 'k'),
-                                'red_top_d' : get_kda(play_time, 'red', 'top', 'd'),
-                                'red_top_a' : get_kda(play_time, 'red', 'top', 'a'),
-                                'red_notice' : get_notice(play_time)[0]}).set_index('timestamp')
+    processed_df = pd.DataFrame({'timestamp' : get_timestamp(game_df),
+                                'red_teamgold' : get_teamgold(game_df, 'red'),
+                                'red_top_cs' : get_cs(game_df, 'red', 'top'),
+                                'red_top_k' : get_kda(game_df, 'red', 'top', 'k'),
+                                'red_top_d' : get_kda(game_df, 'red', 'top', 'd'),
+                                'red_top_a' : get_kda(game_df, 'red', 'top', 'a'),
+                                'red_notice' : get_notice(game_df)[0]}).set_index('timestamp')
     return processed_df

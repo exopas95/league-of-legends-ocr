@@ -3,6 +3,7 @@ import cv2
 import os
 import pandas as pd
 import src.constants as constants
+import src.preprocess as preprocess
 
 from src.bitwise_operation import bit_operation
 from google.cloud import vision
@@ -69,7 +70,6 @@ def detect_text(content, w, h):
 
 # Main function
 def run():
-
     seconds = 30                                                                        # Set frequency 
     for video in video_list:
         cam = cv2.VideoCapture(constants.VIDEO_PATH + "\\" + video)                     # Video Capture start
@@ -111,7 +111,8 @@ def run():
         pbar.close()                                                                    # Close tqdm process bar
         cam.release()                                                                   # Close cv2 video catpure
         cv2.destroyAllWindows()                                                         # Finish cv2
-        df_result.to_csv(constants.CSV_PATH + "\\" + video + ".csv", encoding="utf8")   # Creae csv file
+        processed_df = preprocess.result_process(df_result.T)                           # preprocess data frame
+        processed_df.to_csv(constants.CSV_PATH + "\\" + video + ".csv", encoding="utf8")# Create csv file
         print(f"Video processed and DataFrame created, Video Name: {video}")
 
     print("Completed")
