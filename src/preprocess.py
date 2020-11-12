@@ -242,20 +242,14 @@ def get_notice(df) :
 def result_process(df) :
     game_df = get_game_df(df)
     processed_df = pd.DataFrame({'timestamp' : get_timestamp(game_df),
-<<<<<<< Updated upstream
-=======
                                 'red_top_port' : game_df.red_top_port.values
                                 'blue_top_port' : game_df.blue_top_port.values
 
->>>>>>> Stashed changes
                                 'red_teamgold' : get_teamgold(game_df, 'red'),
                                 'red_top_cs' : get_cs(game_df, 'red', 'top'),
                                 'red_top_k' : get_kda(game_df, 'red', 'top', 'k'),
                                 'red_top_d' : get_kda(game_df, 'red', 'top', 'd'),
                                 'red_top_a' : get_kda(game_df, 'red', 'top', 'a'),
-<<<<<<< Updated upstream
-                                'red_notice' : get_notice(game_df)[0]}).set_index('timestamp')
-=======
 
                                 'red_jug_cs' : get_cs(game_df, 'red', 'jug'),
                                 'red_jug_k' : get_kda(game_df, 'red', 'jug', 'k'),
@@ -307,5 +301,4 @@ def result_process(df) :
                                 'blue_sup_a' : get_kda(game_df, 'blue', 'sup', 'a'),
 
                                 'blue_notice' : get_notice(game_df)[1]}).set_index('timestamp')
->>>>>>> Stashed changes
     return processed_df
