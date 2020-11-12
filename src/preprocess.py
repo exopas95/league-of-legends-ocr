@@ -242,10 +242,70 @@ def get_notice(df) :
 def result_process(df) :
     game_df = get_game_df(df)
     processed_df = pd.DataFrame({'timestamp' : get_timestamp(game_df),
+<<<<<<< Updated upstream
+=======
+                                'red_top_port' : game_df.red_top_port.values
+                                'blue_top_port' : game_df.blue_top_port.values
+
+>>>>>>> Stashed changes
                                 'red_teamgold' : get_teamgold(game_df, 'red'),
                                 'red_top_cs' : get_cs(game_df, 'red', 'top'),
                                 'red_top_k' : get_kda(game_df, 'red', 'top', 'k'),
                                 'red_top_d' : get_kda(game_df, 'red', 'top', 'd'),
                                 'red_top_a' : get_kda(game_df, 'red', 'top', 'a'),
+<<<<<<< Updated upstream
                                 'red_notice' : get_notice(game_df)[0]}).set_index('timestamp')
+=======
+
+                                'red_jug_cs' : get_cs(game_df, 'red', 'jug'),
+                                'red_jug_k' : get_kda(game_df, 'red', 'jug', 'k'),
+                                'red_jug_d' : get_kda(game_df, 'red', 'jug', 'd'),
+                                'red_jug_a' : get_kda(game_df, 'red', 'jug', 'a'),
+
+                                'red_mid_cs' : get_cs(game_df, 'red', 'mid'),
+                                'red_mid_k' : get_kda(game_df, 'red', 'mid', 'k'),
+                                'red_mid_d' : get_kda(game_df, 'red', 'mid', 'd'),
+                                'red_mid_a' : get_kda(game_df, 'red', 'mid', 'a'),
+
+                                'red_bot_cs' : get_cs(game_df, 'red', 'bot'),
+                                'red_bot_k' : get_kda(game_df, 'red', 'bot', 'k'),
+                                'red_bot_d' : get_kda(game_df, 'red', 'bot', 'd'),
+                                'red_bot_a' : get_kda(game_df, 'red', 'bot', 'a'),
+
+                                'red_sup_cs' : get_cs(game_df, 'red', 'sup'),
+                                'red_sup_k' : get_kda(game_df, 'red', 'sup', 'k'),
+                                'red_sup_d' : get_kda(game_df, 'red', 'sup', 'd'),
+                                'red_sup_a' : get_kda(game_df, 'red', 'sup', 'a'),
+
+                                'red_notice' : get_notice(game_df)[0],
+
+                                'blue_teamgold' : get_teamgold(game_df, 'blue'),
+
+                                'blue_top_cs' : get_cs(game_df, 'blue', 'top'),
+                                'blue_top_k' : get_kda(game_df, 'blue', 'top', 'k'),
+                                'blue_top_d' : get_kda(game_df, 'blue', 'top', 'd'),
+                                'blue_top_a' : get_kda(game_df, 'blue', 'top', 'a'),
+
+                                'blue_jug_cs' : get_cs(game_df, 'blue', 'jug'),
+                                'blue_jug_k' : get_kda(game_df, 'blue', 'jug', 'k'),
+                                'blue_jug_d' : get_kda(game_df, 'blue', 'jug', 'd'),
+                                'blue_jug_a' : get_kda(game_df, 'blue', 'jug', 'a'),
+
+                                'blue_mid_cs' : get_cs(game_df, 'blue', 'mid'),
+                                'blue_mid_k' : get_kda(game_df, 'blue', 'mid', 'k'),
+                                'blue_mid_d' : get_kda(game_df, 'blue', 'mid', 'd'),
+                                'blue_mid_a' : get_kda(game_df, 'blue', 'mid', 'a'),
+
+                                'blue_bot_cs' : get_cs(game_df, 'blue', 'bot'),
+                                'blue_bot_k' : get_kda(game_df, 'blue', 'bot', 'k'),
+                                'blue_bot_d' : get_kda(game_df, 'blue', 'bot', 'd'),
+                                'blue_bot_a' : get_kda(game_df, 'blue', 'bot', 'a'),
+
+                                'blue_sup_cs' : get_cs(game_df, 'blue', 'sup'),
+                                'blue_sup_k' : get_kda(game_df, 'blue', 'sup', 'k'),
+                                'blue_sup_d' : get_kda(game_df, 'blue', 'sup', 'd'),
+                                'blue_sup_a' : get_kda(game_df, 'blue', 'sup', 'a'),
+
+                                'blue_notice' : get_notice(game_df)[1]}).set_index('timestamp')
+>>>>>>> Stashed changes
     return processed_df
