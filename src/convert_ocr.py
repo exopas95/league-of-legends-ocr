@@ -72,6 +72,7 @@ def detect_text(content, w, h):
 def run():
     seconds = 30                                                                        # Set frequency 
     for video in video_list:
+        print(f"Start Processing: {video}")
         cam = cv2.VideoCapture(constants.VIDEO_PATH + "\\" + video)                     # Video Capture start
         length = cam.get(cv2.CAP_PROP_FRAME_COUNT)                                      # Get the total number of the frames 
         fps = cam.get(cv2.CAP_PROP_FPS)                                                 # Get fps information of the video 

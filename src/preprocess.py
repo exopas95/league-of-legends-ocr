@@ -4,11 +4,9 @@ import re
 
 
 """ Returns [kill, death, assist] if input word can be decrypted else nan
-    :param x:
-        Input word will define which is kda or not
-    :type x:
-        str
-""""
+    - param x: Input word will define which is kda or not
+    - type x: str
+"""
 def judge_kda(x) :
     try :
         if np.isnan(x) :
@@ -54,17 +52,13 @@ def judge_kda(x) :
             return np.nan
 
 """ Make a monotonic increasing sequence from the left
-    :param a:
-        Input array try to make monotonic
-    :type a:
-        list
+    - param a: Input array try to make monotonic
+    - type a: list
     
-    :param ths:
-        To determine the value that bounces up, 
+    - param ths: To determine the value that bounces up, 
         a threshold that determines how many values have gone down after bouncing up
-    :type ths:
-        int
-""""
+    - type ths: int
+"""
 def make_inc(a, ths) :
     a_inc = []
     i = 0
@@ -94,16 +88,12 @@ def make_inc(a, ths) :
     return a_inc
 
 """ Make a monotonic decreasing sequence from the right
-    :param a:
-        Input array try to make monotonic
-    :type a:
-        list
+    - param a: Input array try to make monotonic
+    - type a: list
     
-    :param ths:
-        Determines how many values have gone down after bouncing down
-    :type ths:
-        int
-""""
+    - param ths: Determines how many values have gone down after bouncing down
+    - type ths: int
+"""
 def make_dec(a, ths) :
     a_temp = []
     i = len(a)-1                                    # Start from back
@@ -136,16 +126,12 @@ def make_dec(a, ths) :
 
 
 """ Join two pseudo-monotonic array as one
-    :param a:
-        Input array try to make monotonic
-    :type a:
-        list
+    - param a: Input array try to make monotonic
+    - type a: list
     
-    :param ths:
-        Determines how many values have gone down after bouncing up or down
-    :type ths:
-        int
-""""
+    - param ths: Determines how many values have gone down after bouncing up or down
+    - type ths: int
+"""
 def make_monotonic(a, ths) :
     a_mono = []
     for i, (x,y) in enumerate(zip(make_dec(a, ths), make_inc(a, ths))) :
@@ -156,11 +142,9 @@ def make_monotonic(a, ths) :
     return a_mono
 
 """ Remove before and after of the game and remain the start to the end of game with timestamp
-    :param df:
-        Input dataframe (Outcome from Vision) which will be preprocessed 
-    :type df:
-        dataframe
-""""
+    - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
+    - type df: dataframe
+"""
 def get_game_df(df) :
     df['timestamp'] = df['timestamp'].apply(lambda x: np.nan if len(x)==0 else x)   # Replace empty list into nan
     timestamps = df.dropna(subset=['timestamp']).index                              # get index of rows with timestamp
@@ -168,11 +152,9 @@ def get_game_df(df) :
 
 
 """ Get list of timestamp as string from input dataframe 
-    :param df:
-        Input dataframe (Outcome from Vision) which will be preprocessed 
-    :type df:
-        dataframe
-""""
+    - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
+    - type df: dataframe
+"""
 def get_timestamp(df) : 
     l = []
     for x in df.timestamp.values :
@@ -187,16 +169,12 @@ def get_timestamp(df) :
 
 
 """ Get list of teamgold aligned by timestamp as float from input dataframe
-    :param df:
-        Input dataframe (Outcome from Vision) which will be preprocessed 
-    :type df:
-        dataframe
+    - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
+    - type df: dataframe
 
-    :param side:
-        'red' or 'blue' 
-    :type side:
-        str
-""""
+    - param side: 'red' or 'blue' 
+    - type side: str
+"""
 def get_teamgold(df, side) :
     l = []
     def isgold(l, side) :           # Internal method to assert value represents gold
@@ -224,21 +202,15 @@ def get_teamgold(df, side) :
 
 
 """ Get list of cs aligned by timestamp as float from input dataframe
-    :param df:
-        Input dataframe (Outcome from Vision) which will be preprocessed 
-    :type df:
-        dataframe
+    - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
+    - type df: dataframe
 
-    :param side:
-        'red' or 'blue' 
-    :type side:
-        str
+    - param side: 'red' or 'blue' 
+    - type side: str
 
-    :param pos:
-        'top' / 'jug' / 'mid' / 'bot' / 'sup' 
-    :type pos:
-        str
-""""
+    - param pos: 'top' / 'jug' / 'mid' / 'bot' / 'sup' 
+    - type pos: str
+"""
 def get_cs(df, side, pos) :
     l = []
     for x in df[side+'_'+pos+'_cs'].values :
@@ -253,26 +225,18 @@ def get_cs(df, side, pos) :
 
 
 """ Get list of kda aligned by timestamp as float from input dataframe
-    :param df:
-        Input dataframe (Outcome from Vision) which will be preprocessed 
-    :type df:
-        dataframe
+    - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
+    - type df: dataframe
 
-    :param side:
-        'red' or 'blue' 
-    :type side:
-        str
+    - param side: 'red' or 'blue' 
+    - type side: str
 
-    :param pos:
-        'top' / 'jug' / 'mid' / 'bot' / 'sup' 
-    :type pos:
-        str
+    - param pos: 'top' / 'jug' / 'mid' / 'bot' / 'sup' 
+    - type pos: str
 
-    :param kda:
-        'k' / 'd' / 'a' 
-    :type pos:
-        str
-""""
+    - param kda: 'k' / 'd' / 'a' 
+    - type pos: str
+"""
 def get_kda(df, side, pos, kda) :
     l=[]
     if kda == 'k' :
@@ -293,11 +257,9 @@ def get_kda(df, side, pos, kda) :
 
 
 """ Get tuple of list of notices(blue, red) from input dataframe
-    :param df:
-        Input dataframe (Outcome from Vision) which will be preprocessed 
-    :type df:
-        dataframe
-""""
+    - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
+    - type df: dataframe
+"""
 def get_notice(df) :                                # Hard coded
     blue = []                                       # Need to add bag of words contains possible typing errors
     red = []
@@ -350,16 +312,14 @@ def get_notice(df) :                                # Hard coded
     Returns dataframe with columns of timestamp for a game, team gold, notice for each team, cs, kill, death, assist, for each team and lane
     Set index as timestamp
     When index is nan, there could be replay
-    :param df:
-        Input dataframe (Outcome from Vision) which will be preprocessed 
-    :type df:
-        dataframe
-""""
+    - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
+    - type df: dataframe
+"""
 def result_process(df) :
     game_df = get_game_df(df)
     processed_df = pd.DataFrame({'timestamp' : get_timestamp(game_df),
-                                'red_top_port' : game_df.red_top_port.values
-                                'blue_top_port' : game_df.blue_top_port.values
+                                'red_top_port' : game_df.red_top_port.values,
+                                'blue_top_port' : game_df.blue_top_port.values,
 
                                 'red_teamgold' : get_teamgold(game_df, 'red'),
                                 'red_top_cs' : get_cs(game_df, 'red', 'top'),
