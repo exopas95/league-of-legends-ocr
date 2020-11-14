@@ -60,3 +60,13 @@ cols = ['blue_top_port', 'blue_jug_port', 'blue_mid_port', 'blue_bot_port',
         'blue_bot_cs', 'blue_sup_cs', 'red_top_kda', 'red_jug_kda',
         'red_mid_kda', 'red_bot_kda', 'red_sup_kda', 'red_top_cs',
         'red_jug_cs', 'red_mid_cs', 'red_bot_cs', 'red_sup_cs']
+
+# Vectors of level, tower, socre_board location
+vec = {
+        "level":[(0.003, 0.171),(0.003, 0.266),(0.003, 0.362),
+                    (0.003, 0.456),(0.003, 0.552),(0.984, 0.171),
+                (0.984, 0.266),(0.984, 0.362),(0.984, 0.456),(0.984, 0.552)],\
+        "tower":[(0.333, 0.016),(0.667, 0.016)],\
+        "vision_score":[(0.306, 0.815),(0.306, 0.856),(0.306, 0.896),
+                      (0.306, 0.936),(0.306, 0.977),(0.686, 0.815),
+                      (0.686, 0.856),(0.686, 0.896),(0.686, 0.936),(0.686, 0.977)]}
