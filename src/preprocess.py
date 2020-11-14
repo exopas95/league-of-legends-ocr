@@ -53,6 +53,40 @@ def judge_kda(x) :
         else :
             return np.nan
 
+""" Find a value of level where portraits are masked with '999'
+    :param x:
+        A list contains characters from portrait
+    :type x:
+        list
+
+    :param side:
+        'blue' or 'red'
+    :type side:
+        str
+""""
+def judge_level(x, side) :
+    try :
+        if np.isnan(x) :
+            return x
+    except :
+        word = ''.join(x)
+        try :
+            if bool(re.search('9999', word)) :
+                return int(9)
+            else :
+                startend_points = re.search(r'999', word).span()
+                if side == 'red' :
+                    i = startend_points[0]
+                    level_candidate = word[max(0,i-2):i]
+                elif side == 'blue' :
+                    i = startend_points[1]
+                    level_candidate = word[i:min(i+2,len(word))]                        
+                level = re.sub(r'[^0-9]', '', level_candidate)
+                return int(level)
+        except :
+            return np.nan
+
+
 """ Make a monotonic increasing sequence from the left
     :param a:
         Input array try to make monotonic
@@ -345,6 +379,31 @@ def get_notice(df) :                                # Hard coded
             red.append(np.nan)
     return blue, red                                # Return tuple, will be changed
 
+""" Get list of level aligned by timestamp as float from input dataframe
+    :param df:
+        Input dataframe (Outcome from Vision) which will be preprocessed 
+    :type df:
+        dataframe
+
+    :param side:
+        'red' or 'blue' 
+    :type side:
+        str
+
+    :param pos:
+        'top' / 'jug' / 'mid' / 'bot' / 'sup' 
+    :type pos:
+        str
+"""
+def get_level(df, side, pos) :
+    l=[]
+    for x in df[side+'_'+pos+'_port'].values :
+        if len(x) > 0 :
+            l.append(judge_level(x))
+        else :
+            l.append(np.nan)
+    return make_monotonic(l, 5)
+
 
 """ Make new dataframe with pre-processed values
     Returns dataframe with columns of timestamp for a game, team gold, notice for each team, cs, kill, death, assist, for each team and lane
@@ -358,8 +417,17 @@ def get_notice(df) :                                # Hard coded
 def result_process(df) :
     game_df = get_game_df(df)
     processed_df = pd.DataFrame({'timestamp' : get_timestamp(game_df),
-                                'red_top_port' : game_df.red_top_port.values
-                                'blue_top_port' : game_df.blue_top_port.values
+                                'red_top_level' : get_level(game_df, 'red', 'top')
+                                'red_jug_level' : get_level(game_df, 'red', 'jug')
+                                'red_mid_level' : get_level(game_df, 'red', 'top')
+                                'red_bot_level' : get_level(game_df, 'red', 'top')
+                                'red_sup_level' : get_level(game_df, 'red', 'top')
+
+                                'blue_top_level' : get_level(game_df, 'blue', 'top')
+                                'blue_jug_level' : get_level(game_df, 'blue', 'jug')
+                                'blue_mid_level' : get_level(game_df, 'blue', 'mid')
+                                'blue_bot_level' : get_level(game_df, 'blue', 'bot')
+                                'blue_sup_level' : get_level(game_df, 'blue', 'sup')
 
                                 'red_teamgold' : get_teamgold(game_df, 'red'),
                                 'red_top_cs' : get_cs(game_df, 'red', 'top'),
