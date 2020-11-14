@@ -57,7 +57,7 @@ def judge_kda(x) :
 
      - param side: 'blue' or 'red'
      - type side: str
-""""
+"""
 def judge_level(x, side) :
     try :
         if np.isnan(x) :
@@ -164,7 +164,7 @@ def make_dec(a, ths) :
 """
 def make_monotonic(a, ths) :
     a_mono = []
-    for i, (x,y) in enumerate(zip(make_dec(a, ths), make_inc(a, ths))) :
+    for x,y in zip(make_dec(a, ths), make_inc(a, ths)) :
         if x == y :                                 # If the two functions do not produce the same value, 
             a_mono.append(x)                        # determine that there is an error and receive a nan
         else :
@@ -351,7 +351,7 @@ def get_level(df, side, pos) :
     l=[]
     for x in df[side+'_'+pos+'_port'].values :
         if len(x) > 0 :
-            l.append(judge_level(x))
+            l.append(judge_level(x,side))
         else :
             l.append(np.nan)
     return make_monotonic(l, 5)
@@ -367,17 +367,17 @@ def get_level(df, side, pos) :
 def result_process(df) :
     game_df = get_game_df(df)
     processed_df = pd.DataFrame({'timestamp' : get_timestamp(game_df),
-                                'red_top_level' : get_level(game_df, 'red', 'top')
-                                'red_jug_level' : get_level(game_df, 'red', 'jug')
-                                'red_mid_level' : get_level(game_df, 'red', 'top')
-                                'red_bot_level' : get_level(game_df, 'red', 'top')
-                                'red_sup_level' : get_level(game_df, 'red', 'top')
+                                'red_top_level' : get_level(game_df, 'red', 'top'),
+                                'red_jug_level' : get_level(game_df, 'red', 'jug'),
+                                'red_mid_level' : get_level(game_df, 'red', 'top'),
+                                'red_bot_level' : get_level(game_df, 'red', 'top'),
+                                'red_sup_level' : get_level(game_df, 'red', 'top'),
 
-                                'blue_top_level' : get_level(game_df, 'blue', 'top')
-                                'blue_jug_level' : get_level(game_df, 'blue', 'jug')
-                                'blue_mid_level' : get_level(game_df, 'blue', 'mid')
-                                'blue_bot_level' : get_level(game_df, 'blue', 'bot')
-                                'blue_sup_level' : get_level(game_df, 'blue', 'sup')
+                                'blue_top_level' : get_level(game_df, 'blue', 'top'),
+                                'blue_jug_level' : get_level(game_df, 'blue', 'jug'),
+                                'blue_mid_level' : get_level(game_df, 'blue', 'mid'),
+                                'blue_bot_level' : get_level(game_df, 'blue', 'bot'),
+                                'blue_sup_level' : get_level(game_df, 'blue', 'sup'),
 
                                 'red_teamgold' : get_teamgold(game_df, 'red'),
                                 'red_top_cs' : get_cs(game_df, 'red', 'top'),
