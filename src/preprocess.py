@@ -284,8 +284,8 @@ def get_kda(df, side, pos, kda) :
     for x in df[side+'_'+pos+'_kda'].values :
         if len(x) > 0 :
             try :
-                l.append(judgekda(x[0])[kda_index])         # Use Method Judgekda, which is on the top of this file 
-            except :                                        # Judge kda returns value with form of [kill, death, assist]
+                l.append(judge_kda(x[0])[kda_index])         # Use Method judge_kda, which is on the top of this file 
+            except :                                        # judge_kda returns value with form of [kill, death, assist]
                 l.append(np.nan)
         else :
             l.append(np.nan)
