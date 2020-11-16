@@ -23,10 +23,9 @@ def inside_finder(coord, row, w, h):
         return False
 
 # Detect text from image using GCP Vision Intelligence
-def detect_text(content, w, h):
+def detect_text(content, w, h, client):
 
     # GCP Vision Intelligence API
-    client = vision.ImageAnnotatorClient()
     image = types.Image(content=content)
     response = client.text_detection(image=image)
     texts = response.text_annotations
@@ -70,7 +69,10 @@ def detect_text(content, w, h):
 
 # Main function
 def run():
-    seconds = 30                                                                        # Set frequency 
+    # GCP Vision Intelligence API
+    client = vision.ImageAnnotatorClient()
+
+    seconds = 2                                                                         # Set frequency 
     for video in video_list:
         print(f"Start Processing: {video}")
         cam = cv2.VideoCapture(constants.VIDEO_PATH + "\\" + video)                     # Video Capture start
@@ -98,7 +100,7 @@ def run():
                     success, encoded_image = cv2.imencode('.png', m_frame)              # Read image as png file
                     content = encoded_image.tobytes()                                   # Convert image from numpy to bytes
 
-                    df = detect_text(content, w, h)                                     # Process image OCR on the current frame
+                    df = detect_text(content, w, h, client)                                     # Process image OCR on the current frame
                     df_result['frame_'+str(current_sec)] = df.text_list                 # Update dataframe
                     current_sec += seconds                                              # Update time information
 
@@ -112,7 +114,8 @@ def run():
         pbar.close()                                                                    # Close tqdm process bar
         cam.release()                                                                   # Close cv2 video catpure
         cv2.destroyAllWindows()                                                         # Finish cv2
-        processed_df = preprocess.result_process(df_result.T)                           # preprocess data frame
+        processed_df = preprocess.result_process(df_result.T)     
+        df_result.T.to_csv(constants.CSV_PATH + "\\raw_" + video + ".csv", encoding="utf8")                     
         processed_df.to_csv(constants.CSV_PATH + "\\" + video + ".csv", encoding="utf8")# Create csv file
         print(f"Video processed and DataFrame created, Video Name: {video}")
 
