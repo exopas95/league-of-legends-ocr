@@ -433,6 +433,20 @@ def result_process(df) :
                                 'blue_sup_k' : get_kda(game_df, 'blue', 'sup', 'k'),
                                 'blue_sup_d' : get_kda(game_df, 'blue', 'sup', 'd'),
                                 'blue_sup_a' : get_kda(game_df, 'blue', 'sup', 'a'),
-
-                                'blue_notice' : get_notice(game_df)[1]}).set_index('timestamp')
+                                
+                                'blue_top_vision_score' : get_level(game_df,'blue','top'),
+                                'blue_jug_vision_score' : get_level(game_df,'blue','jug'),
+                                'blue_mid_vision_score' : get_level(game_df,'blue','mid'),
+                                'blue_bot_vision_score' : get_level(game_df,'blue','bot'),
+                                'blue_sup_vision_score' : get_level(game_df,'blue','sup'),
+                                'red_top_vision_score' : get_level(game_df,'red','top'),
+                                'red_jug_vision_score' : get_level(game_df,'red','jug'),
+                                'red_mid_vision_score' : get_level(game_df,'red','mid'),
+                                'red_bot_vision_score' : get_level(game_df,'red','bot'),
+                                'red_sup_vision_score' : get_level(game_df,'red','sup'),
+                                
+                                'blue_notice' : get_notice(game_df)[1]}).set_index('timestamp'),
+                                
+                                
+                                
     return processed_df
