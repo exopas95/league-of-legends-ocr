@@ -445,7 +445,7 @@ def result_process(df) :
                                 'red_bot_vision_score' : get_level(game_df,'red','bot'),
                                 'red_sup_vision_score' : get_level(game_df,'red','sup'),
                                 
-                                'blue_notice' : get_notice(game_df)[1]}).set_index('timestamp'),
+                                'blue_notice' : get_notice(game_df)[1]}).set_index('timestamp')
                                 
                                 
                                 
