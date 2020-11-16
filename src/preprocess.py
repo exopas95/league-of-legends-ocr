@@ -357,6 +357,35 @@ def get_level(df, side, pos) :
     return make_monotonic(l, 5)
 
 
+def get_vision_score(df, side, pos) :
+    l=[]
+    for x in df[side+'_'+pos+'_vision_score'].values :
+        if len(x) > 0 :
+            l.append(judge_level(x,side))
+        else :
+            l.append(np.nan)
+    return make_monotonic(l, 5)
+
+
+def get_tower_score(df, side) :
+    l=[]
+    for x in df[side+'_tower_score'].values :
+        if len(x) > 0 :
+            l.append(judge_level(x,side))
+        else :
+            l.append(np.nan)
+    return make_monotonic(l, 5)
+
+def get_set_score(df, side) :
+    l=[]
+    for x in df[side+'_set_score'].values :
+        if len(x) > 0 :
+            l.append(judge_level(x,side))
+        else :
+            l.append(np.nan)
+    return make_monotonic(l, 5)
+
+
 """ Make new dataframe with pre-processed values
     Returns dataframe with columns of timestamp for a game, team gold, notice for each team, cs, kill, death, assist, for each team and lane
     Set index as timestamp
@@ -369,9 +398,9 @@ def result_process(df) :
     processed_df = pd.DataFrame({'timestamp' : get_timestamp(game_df),
                                 'red_top_level' : get_level(game_df, 'red', 'top'),
                                 'red_jug_level' : get_level(game_df, 'red', 'jug'),
-                                'red_mid_level' : get_level(game_df, 'red', 'top'),
-                                'red_bot_level' : get_level(game_df, 'red', 'top'),
-                                'red_sup_level' : get_level(game_df, 'red', 'top'),
+                                'red_mid_level' : get_level(game_df, 'red', 'mid'),
+                                'red_bot_level' : get_level(game_df, 'red', 'bot'),
+                                'red_sup_level' : get_level(game_df, 'red', 'sup'),
 
                                 'blue_top_level' : get_level(game_df, 'blue', 'top'),
                                 'blue_jug_level' : get_level(game_df, 'blue', 'jug'),
@@ -434,16 +463,23 @@ def result_process(df) :
                                 'blue_sup_d' : get_kda(game_df, 'blue', 'sup', 'd'),
                                 'blue_sup_a' : get_kda(game_df, 'blue', 'sup', 'a'),
                                 
-                                'blue_top_vision_score' : get_level(game_df,'blue','top'),
-                                'blue_jug_vision_score' : get_level(game_df,'blue','jug'),
-                                'blue_mid_vision_score' : get_level(game_df,'blue','mid'),
-                                'blue_bot_vision_score' : get_level(game_df,'blue','bot'),
-                                'blue_sup_vision_score' : get_level(game_df,'blue','sup'),
-                                'red_top_vision_score' : get_level(game_df,'red','top'),
-                                'red_jug_vision_score' : get_level(game_df,'red','jug'),
-                                'red_mid_vision_score' : get_level(game_df,'red','mid'),
-                                'red_bot_vision_score' : get_level(game_df,'red','bot'),
-                                'red_sup_vision_score' : get_level(game_df,'red','sup'),
+                                'blue_top_vision_score' : get_vision_score(game_df,'blue','top'),
+                                'blue_jug_vision_score' : get_vision_score(game_df,'blue','jug'),
+                                'blue_mid_vision_score' : get_vision_score(game_df,'blue','mid'),
+                                'blue_bot_vision_score' : get_vision_score(game_df,'blue','bot'),
+                                'blue_sup_vision_score' : get_vision_score(game_df,'blue','sup'),
+                                
+                                'red_top_vision_score' : get_vision_score(game_df,'red','top'),
+                                'red_jug_vision_score' : get_vision_score(game_df,'red','jug'),
+                                'red_mid_vision_score' : get_vision_score(game_df,'red','mid'),
+                                'red_bot_vision_score' : get_vision_score(game_df,'red','bot'),
+                                'red_sup_vision_score' : get_vision_score(game_df,'red','sup'),
+                                
+                                'blue_tower_score' : get_tower_score(game_df,'blue'),
+                                'red_tower_score' : get_tower_score(game_df, 'red'),
+                                
+                                'blue_set_score' : get_set_score(game_df,'blue'),
+                                'red_set_score' : get_set_score(game_df,'red'),
                                 
                                 'blue_notice' : get_notice(game_df)[1]}).set_index('timestamp')
                                 
