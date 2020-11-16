@@ -357,6 +357,43 @@ def get_level(df, side, pos) :
     return make_monotonic(l, 5)
 
 
+def get_shutdown(df, side, pos) :
+
+    def slash_count(x) :
+        try :
+            if np.isnan(x) :
+                return 0
+        except :
+            n_slash = 0
+            for i, char in enumerate(x) :
+                if (char == '/') | (char=='7') :
+                    n_slash += 1
+        return n_slash
+
+    def findgold(text) :
+        try :
+            tmp = text.split("'")
+            for char in tmp :
+                try :
+                    if len(char) >= 3 :
+                        cnt = slash_count(char)
+                        if cnt < 2 :
+                            char = ''.join(filter(str.isnumeric, char))
+                            return char[-3:]
+                except :
+                    continue
+        except :
+            return np.nan
+        return np.nan
+
+    gold = []
+
+    for text in df[side+'_'+pos+'_kda'] :
+        gold.append(findgold(text))
+
+    return gold
+
+
 """ Make new dataframe with pre-processed values
     Returns dataframe with columns of timestamp for a game, team gold, notice for each team, cs, kill, death, assist, for each team and lane
     Set index as timestamp
@@ -367,40 +404,41 @@ def get_level(df, side, pos) :
 def result_process(df) :
     game_df = get_game_df(df)
     processed_df = pd.DataFrame({'timestamp' : get_timestamp(game_df),
+
+                                'red_teamgold' : get_teamgold(game_df, 'red'),
+
                                 'red_top_level' : get_level(game_df, 'red', 'top'),
                                 'red_jug_level' : get_level(game_df, 'red', 'jug'),
                                 'red_mid_level' : get_level(game_df, 'red', 'top'),
                                 'red_bot_level' : get_level(game_df, 'red', 'top'),
                                 'red_sup_level' : get_level(game_df, 'red', 'top'),
 
-                                'blue_top_level' : get_level(game_df, 'blue', 'top'),
-                                'blue_jug_level' : get_level(game_df, 'blue', 'jug'),
-                                'blue_mid_level' : get_level(game_df, 'blue', 'mid'),
-                                'blue_bot_level' : get_level(game_df, 'blue', 'bot'),
-                                'blue_sup_level' : get_level(game_df, 'blue', 'sup'),
-
-                                'red_teamgold' : get_teamgold(game_df, 'red'),
                                 'red_top_cs' : get_cs(game_df, 'red', 'top'),
+                                'red_top_shutdown' : get_shutdown(game_df, 'red', 'top'),
                                 'red_top_k' : get_kda(game_df, 'red', 'top', 'k'),
                                 'red_top_d' : get_kda(game_df, 'red', 'top', 'd'),
                                 'red_top_a' : get_kda(game_df, 'red', 'top', 'a'),
 
                                 'red_jug_cs' : get_cs(game_df, 'red', 'jug'),
+                                'red_jug_shutdown' : get_shutdown(game_df, 'red', 'jug'),
                                 'red_jug_k' : get_kda(game_df, 'red', 'jug', 'k'),
                                 'red_jug_d' : get_kda(game_df, 'red', 'jug', 'd'),
                                 'red_jug_a' : get_kda(game_df, 'red', 'jug', 'a'),
 
                                 'red_mid_cs' : get_cs(game_df, 'red', 'mid'),
+                                'red_mid_shutdown' : get_shutdown(game_df, 'red', 'mid'),
                                 'red_mid_k' : get_kda(game_df, 'red', 'mid', 'k'),
                                 'red_mid_d' : get_kda(game_df, 'red', 'mid', 'd'),
                                 'red_mid_a' : get_kda(game_df, 'red', 'mid', 'a'),
 
                                 'red_bot_cs' : get_cs(game_df, 'red', 'bot'),
+                                'red_bot_shutdown' : get_shutdown(game_df, 'red', 'bot'),
                                 'red_bot_k' : get_kda(game_df, 'red', 'bot', 'k'),
                                 'red_bot_d' : get_kda(game_df, 'red', 'bot', 'd'),
                                 'red_bot_a' : get_kda(game_df, 'red', 'bot', 'a'),
 
                                 'red_sup_cs' : get_cs(game_df, 'red', 'sup'),
+                                'red_sup_shutdown' : get_shutdown(game_df, 'red', 'sup'),
                                 'red_sup_k' : get_kda(game_df, 'red', 'sup', 'k'),
                                 'red_sup_d' : get_kda(game_df, 'red', 'sup', 'd'),
                                 'red_sup_a' : get_kda(game_df, 'red', 'sup', 'a'),
@@ -409,27 +447,38 @@ def result_process(df) :
 
                                 'blue_teamgold' : get_teamgold(game_df, 'blue'),
 
+                                'blue_top_level' : get_level(game_df, 'blue', 'top'),
+                                'blue_jug_level' : get_level(game_df, 'blue', 'jug'),
+                                'blue_mid_level' : get_level(game_df, 'blue', 'mid'),
+                                'blue_bot_level' : get_level(game_df, 'blue', 'bot'),
+                                'blue_sup_level' : get_level(game_df, 'blue', 'sup'),
+
                                 'blue_top_cs' : get_cs(game_df, 'blue', 'top'),
+                                'blue_top_shutdown' : get_shutdown(game_df, 'blue', 'top'),
                                 'blue_top_k' : get_kda(game_df, 'blue', 'top', 'k'),
                                 'blue_top_d' : get_kda(game_df, 'blue', 'top', 'd'),
                                 'blue_top_a' : get_kda(game_df, 'blue', 'top', 'a'),
 
                                 'blue_jug_cs' : get_cs(game_df, 'blue', 'jug'),
+                                'blue_jug_shutdown' : get_shutdown(game_df, 'blue', 'jug'),
                                 'blue_jug_k' : get_kda(game_df, 'blue', 'jug', 'k'),
                                 'blue_jug_d' : get_kda(game_df, 'blue', 'jug', 'd'),
                                 'blue_jug_a' : get_kda(game_df, 'blue', 'jug', 'a'),
 
                                 'blue_mid_cs' : get_cs(game_df, 'blue', 'mid'),
+                                'blue_mid_shutdown' : get_shutdown(game_df, 'blue', 'mid'),
                                 'blue_mid_k' : get_kda(game_df, 'blue', 'mid', 'k'),
                                 'blue_mid_d' : get_kda(game_df, 'blue', 'mid', 'd'),
                                 'blue_mid_a' : get_kda(game_df, 'blue', 'mid', 'a'),
 
                                 'blue_bot_cs' : get_cs(game_df, 'blue', 'bot'),
+                                'blue_bot_shutdown' : get_shutdown(game_df, 'blue', 'bot'),
                                 'blue_bot_k' : get_kda(game_df, 'blue', 'bot', 'k'),
                                 'blue_bot_d' : get_kda(game_df, 'blue', 'bot', 'd'),
                                 'blue_bot_a' : get_kda(game_df, 'blue', 'bot', 'a'),
 
                                 'blue_sup_cs' : get_cs(game_df, 'blue', 'sup'),
+                                'blue_sup_shutdown' : get_shutdown(game_df, 'blue', 'sup'),
                                 'blue_sup_k' : get_kda(game_df, 'blue', 'sup', 'k'),
                                 'blue_sup_d' : get_kda(game_df, 'blue', 'sup', 'd'),
                                 'blue_sup_a' : get_kda(game_df, 'blue', 'sup', 'a'),
