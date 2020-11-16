@@ -48,20 +48,20 @@ coord_dict = {'blue_top_port': (0.0, 0.03646, 0.11111, 0.18519),
               'red_mid_cs': (0.53125, 0.55208, 0.87037, 0.91667),
               'red_bot_cs': (0.53125, 0.55208, 0.91667, 0.94444),
               'red_sup_cs': (0.53125, 0.55208, 0.94444, 1.0),
-              "blue_set_score":(0.189,0.229,0.006,0.03), 
-              "red_set_score":(0.776,0.818,0.006,0.03),
-              "blue_top_vision_score":(0.305,0.33,0.813,0.828),
-              "blue_jug_vision_score":(0.305,0.33,0.853,0.868),
-              "blue_mid_vision_score":(0.305,0.33,0.893,0.908),
-              "blue_bot_vision_score":(0.305,0.33,0.933,0.948),
-              "blue_sup_vision_score":(0.305,0.33,0.973,0.988),
-              "red_top_vision_score":(0.673,0.702,0.813,0.828),
-              "red_jug_vision_score":(0.673,0.702,0.853,0.868),
-              "red_mid_vision_score":(0.673,0.702,0.893,0.908),
-              "red_bot_vision_score":(0.673,0.702,0.933,0.948),
-              "red_sup_vision_score":(0.673,0.702,0.973,0.988),
-              "blue_tower_score":(0.332,0.361,0.015,0.03),
-              "red_tower_score":(0.656,0.685,0.015,0.03)
+              "blue_set_score" :(0.189,0.229,0.006,0.03), 
+              "red_set_score" :(0.776,0.818,0.006,0.03),
+              "blue_top_vision_score": (0.305,0.33,0.813,0.828),
+              "blue_jug_vision_score": (0.305,0.33,0.853,0.868),
+              "blue_mid_vision_score": (0.305,0.33,0.893,0.908),
+              "blue_bot_vision_score": (0.305,0.33,0.933,0.948),
+              "blue_sup_vision_score": (0.305,0.33,0.973,0.988),
+              "red_top_vision_score": (0.673,0.702,0.813,0.828),
+              "red_jug_vision_score": (0.673,0.702,0.853,0.868),
+              "red_mid_vision_score": (0.673,0.702,0.893,0.908),
+              "red_bot_vision_score": (0.673,0.702,0.933,0.948),
+              "red_sup_vision_score": (0.673,0.702,0.973,0.988),
+              "blue_tower_score": (0.332,0.361,0.015,0.03),
+              "red_tower_score": (0.656,0.685,0.015,0.03)
               }
 
 # Column information of the dataframe
@@ -73,7 +73,11 @@ cols = ['blue_top_port', 'blue_jug_port', 'blue_mid_port', 'blue_bot_port',
         'blue_sup_kda', 'blue_top_cs', 'blue_jug_cs', 'blue_mid_cs',
         'blue_bot_cs', 'blue_sup_cs', 'red_top_kda', 'red_jug_kda',
         'red_mid_kda', 'red_bot_kda', 'red_sup_kda', 'red_top_cs',
-        'red_jug_cs', 'red_mid_cs', 'red_bot_cs', 'red_sup_cs']
+        'red_jug_cs', 'red_mid_cs', 'red_bot_cs', 'red_sup_cs',
+        'blue_set_score', 'red_set_score','blue_top_vision_score','blue_jug_vision_score',
+        'blue_mid_vision_score','blue_bot_vision_score','blue_sup_vision_score',
+        'red_top_vision_score','red_jug_vision_score','red_mid_vision_score',
+        'red_bot_vision_score','red_sup_vision_score','blue_tower_score','red_tower_score']
 
 # Vectors of level, tower, socre_board location
 vec = {
@@ -85,4 +89,3 @@ vec = {
         "vision_score":[(0.306, 0.815),(0.306, 0.856),(0.306, 0.896),
                       (0.306, 0.936),(0.306, 0.977),(0.686, 0.815),
                       (0.686, 0.856),(0.686, 0.896),(0.686, 0.936),(0.686, 0.977)]}
-
