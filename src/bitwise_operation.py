@@ -12,9 +12,12 @@ def text_image_attach(img):
         if (i == "level") or (i == 'vision_score'):
             # mask_image_num_resize = mask_image_num.resize((int(mask_image_num.width * 4/7), int(mask_image_num.height * 4/7)))
             mask_image_num_resize = cv2.resize(mask_image_num, (int(width * 4/7), int(height * 4/7)), interpolation = cv2.INTER_LINEAR)
-        elif (i == "tower"):
+        elif i == "tower_score":
             # mask_image_num_resize = mask_image_num.resize((int(mask_image_num.width * 5/7), int(mask_image_num.height * 5/7)))
             mask_image_num_resize = cv2.resize(mask_image_num, (int(width * 5/7), int(height * 5/7)), interpolation = cv2.INTER_LINEAR)
+        elif i == "set_score":
+            # mask_image_num_resize = mask_image_num.resize((int(mask_image_num.width * 9/7), int(mask_image_num.height * 9/7)))
+            mask_image_num_resize = cv2.resize(mask_image_num, (int(width * 9/7), int(height * 9/7)), interpolation = cv2.INTER_LINEAR)
         for j in range(len(vec[i])):
             x, y = int(vec[i][j][0]*1920),int(vec[i][j][1]*1080)
             # img.paste(mask_image_num_resize, (x,y), mask_image_num_resize)
