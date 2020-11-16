@@ -61,7 +61,8 @@ coord_dict = {'blue_top_port': (0.0, 0.03646, 0.11111, 0.18519),
               "red_bot_vision_score": (0.673,0.702,0.933,0.948),
               "red_sup_vision_score": (0.673,0.702,0.973,0.988),
               "blue_tower_score": (0.332,0.361,0.015,0.03),
-              "red_tower_score": (0.656,0.685,0.015,0.03)
+              "red_tower_score": (0.656,0.685,0.015,0.03),
+              "left_top_dragon_info": (0.01,0.131,0.015,0.101)
               }
 
 # Column information of the dataframe
