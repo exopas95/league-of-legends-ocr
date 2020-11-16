@@ -74,7 +74,7 @@ cols = ['blue_top_port', 'blue_jug_port', 'blue_mid_port', 'blue_bot_port',
         'blue_bot_cs', 'blue_sup_cs', 'red_top_kda', 'red_jug_kda',
         'red_mid_kda', 'red_bot_kda', 'red_sup_kda', 'red_top_cs',
         'red_jug_cs', 'red_mid_cs', 'red_bot_cs', 'red_sup_cs',
-        'blue_set_score','red_set_score','blue_top_vision_score','blue_jug_vision_score',
+        'blue_set_score', 'red_set_score','blue_top_vision_score','blue_jug_vision_score',
         'blue_mid_vision_score','blue_bot_vision_score','blue_sup_vision_score',
         'red_top_vision_score','red_jug_vision_score','red_mid_vision_score',
         'red_bot_vision_score','red_sup_vision_score','blue_tower_score','red_tower_score']
