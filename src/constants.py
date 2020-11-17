@@ -78,7 +78,8 @@ cols = ['blue_top_port', 'blue_jug_port', 'blue_mid_port', 'blue_bot_port',
         'blue_set_score', 'red_set_score','blue_top_vision_score','blue_jug_vision_score',
         'blue_mid_vision_score','blue_bot_vision_score','blue_sup_vision_score',
         'red_top_vision_score','red_jug_vision_score','red_mid_vision_score',
-        'red_bot_vision_score','red_sup_vision_score','blue_tower_score','red_tower_score']
+        'red_bot_vision_score','red_sup_vision_score','blue_tower_score','red_tower_score',
+        "left_top_dragon_info"]
 
 # Vectors of level, tower, socre_board location
 vec = {
