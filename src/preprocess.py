@@ -285,57 +285,106 @@ def get_kda(df, side, pos, kda) :
             l.append(np.nan)
     return make_monotonic(l, 5)                             # kda is monotonically increasing
 
+"""Deduplicate data from list for arrange notice
+    - param data: multiple-read data (Outcome from Vision) 
+    - type data: list
+"""
+def deduplicate(data):
+    result = []
+    result.append(data[0])
+    for x in range(1,len(data)):
+        if data[x] == data[x-1]:
+            result.append(np.nan)
+        else:
+            result.append(data[x])
+    return result
 
-""" Get tuple of list of notices(blue, red) from input dataframe
+""" Get tuple of list of drake/dragon(blue, red) from input dataframe
     - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
     - type df: dataframe
 """
-def get_notice(df) :                                # Hard coded
-    blue = []                                       # Need to add bag of words contains possible typing errors
+def get_drake(df) :
+    seq = []
+    drake_type = ['INFERNAL', 'CLOUD', 'MOUNTAIN', 'OCEAN']
+    for x in df['left_top_dragon_info'].values :
+        for y in drake_type:
+            if (y in x) and (y not in seq) :
+                seq.append(y)            
+    blue = []
+    red = []
+    blue_dra_stack = 0
+    red_dra_stack = 0
+    has_error = ''
+    total_stack = blue_dra_stack + red_dra_stack
+    for x in df['notice'].values :
+        if '드래곤' in x :
+            if '파랑' in x :
+                blue_dra_stack += 1
+                red.append(np.nan)
+                total_stack = blue_dra_stack + red_dra_stack
+                if total_stack < 3:
+                    blue.append(has_error+seq[total_stack]+'DRAKE')
+                elif total_stack >= 3:
+                    if (blue_dra_stack > 4) or (red_dra_stack >= 4):      #red got 4 dragon or blue already got 4 dragon 
+                        blue.append(has_error+'ELDER'+'DRAKE')
+                    else:
+                        blue.append(has_error+seq[2]+'DRAKE')
+            elif '빨강' in x :
+                red_dra_stack += 1
+                blue.append(np.nan)
+                total_stack = blue_dra_stack + red_dra_stack
+                if total_stack < 3:
+                    red.append(has_error+seq[total_stack]+'DRAKE')
+                elif total_stack >= 3:
+                    if (red_dra_stack > 4) or (blue_dra_stack >= 4):
+                        red.append(has_error+'ELDER'+'DRAKE')
+                    else:
+                        red.append(has_error+seq[2]+'DRAKE')
+            else:                                         #slain drake but don't know team
+                red.append('UNKNOWN'+'DRAKE')
+                blue.append('UNKNOWN'+'DRAKE')
+                has_error = '[ERROR]'
+        else:
+            red.append(np.nan)
+            blue.append(np.nan)
+    blue = deduplicate(blue)
+    red = deduplicate(red)
+    return blue, red
+
+""" Get tuple of list of nashor/herald(blue, red) from input dataframe
+    - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
+    - type df: dataframe
+"""
+def get_nashor_herald(df) :
+    blue = []
     red = []
     for x in df['notice'].values :
-        if len(x)>0 :
-            if '파랑' in x :
-                if '남작' in x :
-                    red.append(np.nan)
-                    blue.append('nashor')
-                elif '드래곤' in x :
-                    red.append(np.nan)
-                    blue.append('drake')
-                elif ('포탑' in x) :                # Turret will be recorded based on the team that breaks
-                    if '번째' in x :                # Announce notices perpetrator for the first turret
-                        blue.append('turret')       # (e.g.'파랑 팀이 첫 번째 포탑을 파괴했습니다')
-                        red.append(np.nan)
-                    else :
-                        red.append('turret')        # Announce notices victim for other cases
-                        blue.append(np.nan)         # (e.g. '빨강 팀의 포탑이 파괴되었습니다')
-                else :
-                    red.append(np.nan)
-                    blue.append('unknown')          # Now, record 'unknown' when there are typing errors
-            elif '빨강' in x :
-                if '남작' in x :
-                    blue.append(np.nan)
-                    red.append('nashor')
-                elif '드래곤' in x :
-                    blue.append(np.nan)
-                    red.append('drake')
-                elif ('포탑' in x) :
-                    if '번째' in x :
-                        blue.append(np.nan)
-                        red.append('turret')
-                    else :
-                        blue.append('turret')
-                        red.append(np.nan)
-                else :
-                    blue.append(np.nan)
-                    red.append('unknown')
-            else :
-                blue.append(np.nan)
+        if '파랑' in x :
+            if '남작' in x :
                 red.append(np.nan)
-        else :
+                blue.append('nashor')
+            elif '전령' in x :
+                red.append(np.nan)
+                blue.append('summon_herald')
+            else:
+                red.append(np.nan)
+                blue.append(np.nan)
+        elif '빨강' in x :
+            if '남작' in x :
+                blue.append(np.nan)
+                red.append('nashor')
+            elif '전령' in x :
+                blue.append(np.nan)
+                red.append('summon_herald')
+            else:
+                red.append(np.nan)
+                blue.append(np.nan)
+        else:
             blue.append(np.nan)
             red.append(np.nan)
-    return blue, red                                # Return tuple, will be changed
+    blue = deduplicate(blue)
+    red = deduplicate(red)
+    return blue, red
 
 """ Get list of level aligned by timestamp as float from input dataframe
      - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
@@ -471,7 +520,8 @@ def result_process(df) :
                                 'red_sup_d' : get_kda(game_df, 'red', 'sup', 'd'),
                                 'red_sup_a' : get_kda(game_df, 'red', 'sup', 'a'),
 
-                                'red_notice' : get_notice(game_df)[0],
+                                'red_drake' : get_drake(game_df)[1],
+                                'red_nashor_herald' : get_nashor_herald(game_df)[1],
 
                                 'blue_teamgold' : get_teamgold(game_df, 'blue'),
 
@@ -529,7 +579,8 @@ def result_process(df) :
                                 'blue_set_score' : get_set_score(game_df,'blue'),
                                 'red_set_score' : get_set_score(game_df,'red'),
                                 
-                                'blue_notice' : get_notice(game_df)[1]}).set_index('timestamp')
+                                'blue_drake' : get_drake(game_df)[0],
+                                'blue_nashor_herald' : get_nashor_herald(game_df)[0]}).set_index('timestamp')
                                 
                                 
                                 
