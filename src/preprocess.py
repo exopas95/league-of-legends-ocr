@@ -314,11 +314,14 @@ def deduplicate(df):
 def get_drake(df) :
     seq = []
     drake_type = ['INFERNAL', 'CLOUD', 'MOUNTAIN', 'OCEAN']
+    print("EUM0: ", df.columns)
+    print("EUM1: ", df.loc[:, 'left_top_dragon_info'])
+    print("EUM2: ", df['left_top_dragon_info'].values)
     for x in df['left_top_dragon_info'].values :
         for y in drake_type:
             if (y in x) and (y not in seq) :
                 seq.append(y)
-    df_drake_pre = df_target(df_ingame, '드래곤')
+    df_drake_pre = df_target(df, '드래곤')
     df_drake = deduplicate(df_drake_pre)
     blue = []
     red = []
@@ -372,8 +375,8 @@ def get_drake(df) :
 def get_nashor_herald(df) :
     blue = []
     red = []
-    df_nashor_pre = df_target(df_ingame, '내셔')
-    df_herald_pre = df_target(df_ingame, '')
+    df_nashor_pre = df_target(df, '내셔')
+    df_herald_pre = df_target(df, '전령')
     df_nashor = deduplicate(df_nashor_pre)
     df_herald = deduplicate(df_herald_pre)
     df_object = pd.concat([df_nashor, df_herald])
@@ -543,11 +546,7 @@ def result_process(df) :
                                 'red_sup_d' : get_kda(game_df, 'red', 'sup', 'd'),
                                 'red_sup_a' : get_kda(game_df, 'red', 'sup', 'a'),
 
-#                                 'red_drake' : get_drake(game_df)[1],
-#                                 'red_nashor_herald' : get_nashor_herald(game_df)[1],
-
                                 'blue_teamgold' : get_teamgold(game_df, 'blue'),
-
                                 'blue_top_level' : get_level(game_df, 'blue', 'top'),
                                 'blue_jug_level' : get_level(game_df, 'blue', 'jug'),
                                 'blue_mid_level' : get_level(game_df, 'blue', 'mid'),
@@ -598,12 +597,15 @@ def result_process(df) :
                                 
                                 'blue_tower_score' : get_tower_score(game_df,'blue'),
                                 'red_tower_score' : get_tower_score(game_df, 'red'),
+
+                                'blue_drake' : get_drake(game_df)[0],
+                                'blue_nashor_herald' : get_nashor_herald(game_df)[0],
+                                'red_drake' : get_drake(game_df)[1],
+                                'red_nashor_herald' : get_nashor_herald(game_df)[1],
                                 
                                 'blue_set_score' : get_set_score(game_df,'blue'),
                                 'red_set_score' : get_set_score(game_df,'red')}).set_index('timestamp')
                                 
-#                                 'blue_drake' : get_drake(game_df)[0],
-#                                 'blue_nashor_herald' : get_nashor_herald(game_df)[0]
                                 
                                 
                                 
