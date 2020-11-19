@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import time
 import re
 
 
@@ -171,6 +172,10 @@ def make_monotonic(a, ths) :
             a_mono.append(np.nan)
     return a_mono
 
+def get_video_timestamp(df):
+    df['video_timestamp'] = df['video_timestamp'].apply(lambda x: np.nan if len(x)==0 else time.strftime("%M:%S", time.gmtime(float(x))))   # Replace empty list into nan
+    return df["video_timestamp"]
+    
 """ Remove before and after of the game and remain the start to the end of game with timestamp
     - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
     - type df: dataframe
@@ -303,99 +308,99 @@ def deduplicate(df):
     - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
     - type df: dataframe
 """
-def get_drake(df) :
-    seq = []
-    drake_type = ['INFERNAL', 'CLOUD', 'MOUNTAIN', 'OCEAN']
-    for x in df['left_top_dragon_info'].values :
-        for y in drake_type:
-            if (y in x) and (y not in seq) :
-                seq.append(y)
-    df_drake_pre = df[df.notice.str.contains('드래곤')]
-    df_drake = deduplicate(df_drake_pre)
-    blue = []
-    red = []
-    blue_dra_stack = 0
-    red_dra_stack = 0
-    has_error = ''
-    total_stack = blue_dra_stack + red_dra_stack
-    for x in range(len(df)) :
-        if x in df_drake.index:
-            if '드래곤' in df['notice'][x] :
-                if '파랑' in df['notice'][x] :
-                    blue_dra_stack += 1
-                    red.append(np.nan)
-                    total_stack = blue_dra_stack + red_dra_stack
-                    if total_stack < 3:
-                        blue.append(has_error+seq[total_stack]+'DRAKE')
-                    elif total_stack >= 3:
-                        if (blue_dra_stack > 4) or (red_dra_stack >= 4):      #red got 4 dragon or blue already got 4 dragon 
-                            blue.append(has_error+'ELDER'+'DRAKE')
-                        else:
-                            blue.append(has_error+seq[2]+'DRAKE')
-                elif '빨강' in df['notice'][x] :
-                    red_dra_stack += 1
-                    blue.append(np.nan)
-                    total_stack = blue_dra_stack + red_dra_stack
-                    if total_stack < 3:
-                        red.append(has_error+seq[total_stack]+'DRAKE')
-                    elif total_stack >= 3:
-                        if (red_dra_stack > 4) or (blue_dra_stack >= 4):
-                            red.append(has_error+'ELDER'+'DRAKE')
-                        else:
-                            red.append(has_error+seq[2]+'DRAKE')
-                else:                                         #slain drake but don't know team
-                    red.append('UNKNOWN'+'DRAKE')
-                    blue.append('UNKNOWN'+'DRAKE')
-                    has_error = '[ERROR]'
-            else:
-                red.append(np.nan)
-                blue.append(np.nan)
-        else:
-            red.append(np.nan)
-            blue.append(np.nan)
-    return blue, red
+# def get_drake(df) :
+#     seq = []
+#     drake_type = ['INFERNAL', 'CLOUD', 'MOUNTAIN', 'OCEAN']
+#     for x in df['left_top_dragon_info'].values :
+#         for y in drake_type:
+#             if (y in x) and (y not in seq) :
+#                 seq.append(y)
+#     df_drake_pre = df[df.notice.str.contains('드래곤')]
+#     df_drake = deduplicate(df_drake_pre)
+#     blue = []
+#     red = []
+#     blue_dra_stack = 0
+#     red_dra_stack = 0
+#     has_error = ''
+#     total_stack = blue_dra_stack + red_dra_stack
+#     for x in range(len(df)) :
+#         if x in df_drake.index:
+#             if '드래곤' in df['notice'][x] :
+#                 if '파랑' in df['notice'][x] :
+#                     blue_dra_stack += 1
+#                     red.append(np.nan)
+#                     total_stack = blue_dra_stack + red_dra_stack
+#                     if total_stack < 3:
+#                         blue.append(has_error+seq[total_stack]+'DRAKE')
+#                     elif total_stack >= 3:
+#                         if (blue_dra_stack > 4) or (red_dra_stack >= 4):      #red got 4 dragon or blue already got 4 dragon 
+#                             blue.append(has_error+'ELDER'+'DRAKE')
+#                         else:
+#                             blue.append(has_error+seq[2]+'DRAKE')
+#                 elif '빨강' in df['notice'][x] :
+#                     red_dra_stack += 1
+#                     blue.append(np.nan)
+#                     total_stack = blue_dra_stack + red_dra_stack
+#                     if total_stack < 3:
+#                         red.append(has_error+seq[total_stack]+'DRAKE')
+#                     elif total_stack >= 3:
+#                         if (red_dra_stack > 4) or (blue_dra_stack >= 4):
+#                             red.append(has_error+'ELDER'+'DRAKE')
+#                         else:
+#                             red.append(has_error+seq[2]+'DRAKE')
+#                 else:                                         #slain drake but don't know team
+#                     red.append('UNKNOWN'+'DRAKE')
+#                     blue.append('UNKNOWN'+'DRAKE')
+#                     has_error = '[ERROR]'
+#             else:
+#                 red.append(np.nan)
+#                 blue.append(np.nan)
+#         else:
+#             red.append(np.nan)
+#             blue.append(np.nan)
+#     return blue, red
 
 """ Get tuple of list of nashor/herald(blue, red) from input dataframe
     - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
     - type df: dataframe
 """
-def get_nashor_herald(df) :
-    blue = []
-    red = []
-    df_nashor_pre = df[df.notice.str.contains('내셔')]
-    df_herald_pre = df[df.notice.str.contains('전령')]
-    df_nashor = deduplicate(df_nashor_pre)
-    df_herald = deduplicate(df_herald_pre)
-    df_object = pd.concat([df_nashor, df_herald])
-    for x in range(len(df)) :
-        if x in df_object.index :
-            if '파랑' in df['notice'][x] :
-                if '남작' in df['notice'][x] :
-                    red.append(np.nan)
-                    blue.append('nashor')
-                elif '전령' in df['notice'][x] :
-                    red.append(np.nan)
-                    blue.append('summon_herald')
-                else:
-                    red.append(np.nan)
-                    blue.append(np.nan)
-            elif '빨강' in df['notice'][x] :
-                if '남작' in df['notice'][x] :
-                    blue.append(np.nan)
-                    red.append('nashor')
-                elif '전령' in df['notice'][x] :
-                    blue.append(np.nan)
-                    red.append('summon_herald')
-                else:
-                    red.append(np.nan)
-                    blue.append(np.nan)
-            else:
-                blue.append(np.nan)
-                red.append(np.nan)
-        else:
-            blue.append(np.nan)
-            red.append(np.nan)
-    return blue, red
+# def get_nashor_herald(df) :
+#     blue = []
+#     red = []
+#     df_nashor_pre = df[df.notice.str.contains('내셔')]
+#     df_herald_pre = df[df.notice.str.contains('전령')]
+#     df_nashor = deduplicate(df_nashor_pre)
+#     df_herald = deduplicate(df_herald_pre)
+#     df_object = pd.concat([df_nashor, df_herald])
+#     for x in range(len(df)) :
+#         if x in df_object.index :
+#             if '파랑' in df['notice'][x] :
+#                 if '남작' in df['notice'][x] :
+#                     red.append(np.nan)
+#                     blue.append('nashor')
+#                 elif '전령' in df['notice'][x] :
+#                     red.append(np.nan)
+#                     blue.append('summon_herald')
+#                 else:
+#                     red.append(np.nan)
+#                     blue.append(np.nan)
+#             elif '빨강' in df['notice'][x] :
+#                 if '남작' in df['notice'][x] :
+#                     blue.append(np.nan)
+#                     red.append('nashor')
+#                 elif '전령' in df['notice'][x] :
+#                     blue.append(np.nan)
+#                     red.append('summon_herald')
+#                 else:
+#                     red.append(np.nan)
+#                     blue.append(np.nan)
+#             else:
+#                 blue.append(np.nan)
+#                 red.append(np.nan)
+#         else:
+#             blue.append(np.nan)
+#             red.append(np.nan)
+#     return blue, red
 
 """ Get list of level aligned by timestamp as float from input dataframe
      - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
@@ -491,8 +496,8 @@ def get_set_score(df, side) :
 """
 def result_process(df) :
     game_df = get_game_df(df)
-    processed_df = pd.DataFrame({'timestamp' : get_timestamp(game_df),
-
+    processed_df = pd.DataFrame({"video_timestamp": get_video_timestamp(game_df),
+                                'timestamp' : get_timestamp(game_df),
                                 'red_teamgold' : get_teamgold(game_df, 'red'),
 
                                 'red_top_level' : get_level(game_df, 'red', 'top'),
@@ -531,8 +536,8 @@ def result_process(df) :
                                 'red_sup_d' : get_kda(game_df, 'red', 'sup', 'd'),
                                 'red_sup_a' : get_kda(game_df, 'red', 'sup', 'a'),
 
-                                'red_drake' : get_drake(game_df)[1],
-                                'red_nashor_herald' : get_nashor_herald(game_df)[1],
+                                # 'red_drake' : get_drake(game_df)[1],
+                                # 'red_nashor_herald' : get_nashor_herald(game_df)[1],
 
                                 'blue_teamgold' : get_teamgold(game_df, 'blue'),
 
@@ -588,10 +593,10 @@ def result_process(df) :
                                 'red_tower_score' : get_tower_score(game_df, 'red'),
                                 
                                 'blue_set_score' : get_set_score(game_df,'blue'),
-                                'red_set_score' : get_set_score(game_df,'red'),
+                                'red_set_score' : get_set_score(game_df,'red')}).set_index('timestamp')
                                 
-                                'blue_drake' : get_drake(game_df)[0],
-                                'blue_nashor_herald' : get_nashor_herald(game_df)[0]}).set_index('timestamp')
+                                # 'blue_drake' : get_drake(game_df)[0],
+                                # 'blue_nashor_herald' : get_nashor_herald(game_df)[0]}).set_index('timestamp')
                                 
                                 
                                 

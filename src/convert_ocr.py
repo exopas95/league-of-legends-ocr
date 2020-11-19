@@ -64,7 +64,6 @@ def detect_text(content, w, h, client):
             if inside_finder(v, row, w, h):
                 d[k].append(row.text)
         df.loc[k]['text_list'] = d[k]
-
     return df
 
 # Main function
@@ -72,7 +71,7 @@ def run():
     # GCP Vision Intelligence API
     client = vision.ImageAnnotatorClient()
 
-    seconds = 10                                                                         # Set frequency 
+    seconds = 120                                                                         # Set frequency 
     for video in video_list:
         print(f"Start Processing: {video}")
         cam = cv2.VideoCapture(constants.VIDEO_PATH + "\\" + video)                     # Video Capture start
@@ -96,12 +95,14 @@ def run():
             if ret:
                 # Process image analysis according to the set frequency... ex) 10 sec
                 if frameId % multiplier < 1:
+                    video_timestamp = str(cam.get(cv2.CAP_PROP_POS_MSEC) / 1000)        # Count time
                     m_frame = bit_operation(frame)                                      # Mask current frame
                     success, encoded_image = cv2.imencode('.png', m_frame)              # Read image as png file
                     content = encoded_image.tobytes()                                   # Convert image from numpy to bytes
 
-                    df = detect_text(content, w, h, client)                                     # Process image OCR on the current frame
+                    df = detect_text(content, w, h, client)                             # Process image OCR on the current frame
                     df_result['frame_'+str(current_sec)] = df.text_list                 # Update dataframe
+                    df_result.loc["video_timestamp", 'frame_'+str(current_sec)] = video_timestamp
                     current_sec += seconds                                              # Update time information
 
                     pbar.update(frameId - p_frame)                                      # update tqdm process bar
@@ -114,8 +115,9 @@ def run():
         pbar.close()                                                                    # Close tqdm process bar
         cam.release()                                                                   # Close cv2 video catpure
         cv2.destroyAllWindows()                                                         # Finish cv2
+        df_result.T.to_csv(constants.CSV_PATH + "\\raw_" + video + ".csv", encoding="utf8")                   
+
         processed_df = preprocess.result_process(df_result.T)     
-        df_result.T.to_csv(constants.CSV_PATH + "\\raw_" + video + ".csv", encoding="utf8")                     
         processed_df.to_csv(constants.CSV_PATH + "\\" + video + ".csv", encoding="utf8")# Create csv file
         print(f"Video processed and DataFrame created, Video Name: {video}")
 
