@@ -286,18 +286,18 @@ def get_kda(df, side, pos, kda) :
     return make_monotonic(l, 5)                             # kda is monotonically increasing
 
 """Deduplicate data from list for arrange notice
-    - param data: multiple-read data (Outcome from Vision) 
-    - type data: list
+    - param data: Once-processed dataframe (has multiple-read in 'notice') 
+    - type data: dataframe
 """
-def deduplicate(data):
-    result = []
-    result.append(data[0])
-    for x in range(1,len(data)):
-        if data[x] == data[x-1]:
-            result.append(np.nan)
+def deduplicate(df):
+    dedup_index = []
+    for i in df.index:
+        if len(dedup_index) == 0:
+            dedup_index.append(i)
         else:
-            result.append(data[x])
-    return result
+            if dedup_index[-1]+4 < i:                       #Find that notice can be read max three~four times
+                dedup_index.append(i)
+    return df.loc[dedup_index, :]
 
 """ Get tuple of list of drake/dragon(blue, red) from input dataframe
     - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
@@ -309,46 +309,50 @@ def get_drake(df) :
     for x in df['left_top_dragon_info'].values :
         for y in drake_type:
             if (y in x) and (y not in seq) :
-                seq.append(y)            
+                seq.append(y)
+    df_drake_pre = df[df.notice.str.contains('드래곤')]
+    df_drake = deduplicate(df_drake_pre)
     blue = []
     red = []
     blue_dra_stack = 0
     red_dra_stack = 0
     has_error = ''
     total_stack = blue_dra_stack + red_dra_stack
-    for x in df['notice'].values :
-        if '드래곤' in x :
-            if '파랑' in x :
-                blue_dra_stack += 1
+    for x in range(len(df)) :
+        if x in df_drake.index:
+            if '드래곤' in df['notice'][x] :
+                if '파랑' in df['notice'][x] :
+                    blue_dra_stack += 1
+                    red.append(np.nan)
+                    total_stack = blue_dra_stack + red_dra_stack
+                    if total_stack < 3:
+                        blue.append(has_error+seq[total_stack]+'DRAKE')
+                    elif total_stack >= 3:
+                        if (blue_dra_stack > 4) or (red_dra_stack >= 4):      #red got 4 dragon or blue already got 4 dragon 
+                            blue.append(has_error+'ELDER'+'DRAKE')
+                        else:
+                            blue.append(has_error+seq[2]+'DRAKE')
+                elif '빨강' in df['notice'][x] :
+                    red_dra_stack += 1
+                    blue.append(np.nan)
+                    total_stack = blue_dra_stack + red_dra_stack
+                    if total_stack < 3:
+                        red.append(has_error+seq[total_stack]+'DRAKE')
+                    elif total_stack >= 3:
+                        if (red_dra_stack > 4) or (blue_dra_stack >= 4):
+                            red.append(has_error+'ELDER'+'DRAKE')
+                        else:
+                            red.append(has_error+seq[2]+'DRAKE')
+                else:                                         #slain drake but don't know team
+                    red.append('UNKNOWN'+'DRAKE')
+                    blue.append('UNKNOWN'+'DRAKE')
+                    has_error = '[ERROR]'
+            else:
                 red.append(np.nan)
-                total_stack = blue_dra_stack + red_dra_stack
-                if total_stack < 3:
-                    blue.append(has_error+seq[total_stack]+'DRAKE')
-                elif total_stack >= 3:
-                    if (blue_dra_stack > 4) or (red_dra_stack >= 4):      #red got 4 dragon or blue already got 4 dragon 
-                        blue.append(has_error+'ELDER'+'DRAKE')
-                    else:
-                        blue.append(has_error+seq[2]+'DRAKE')
-            elif '빨강' in x :
-                red_dra_stack += 1
                 blue.append(np.nan)
-                total_stack = blue_dra_stack + red_dra_stack
-                if total_stack < 3:
-                    red.append(has_error+seq[total_stack]+'DRAKE')
-                elif total_stack >= 3:
-                    if (red_dra_stack > 4) or (blue_dra_stack >= 4):
-                        red.append(has_error+'ELDER'+'DRAKE')
-                    else:
-                        red.append(has_error+seq[2]+'DRAKE')
-            else:                                         #slain drake but don't know team
-                red.append('UNKNOWN'+'DRAKE')
-                blue.append('UNKNOWN'+'DRAKE')
-                has_error = '[ERROR]'
         else:
             red.append(np.nan)
             blue.append(np.nan)
-    blue = deduplicate(blue)
-    red = deduplicate(red)
     return blue, red
 
 """ Get tuple of list of nashor/herald(blue, red) from input dataframe
@@ -358,32 +362,39 @@ def get_drake(df) :
 def get_nashor_herald(df) :
     blue = []
     red = []
-    for x in df['notice'].values :
-        if '파랑' in x :
-            if '남작' in x :
-                red.append(np.nan)
-                blue.append('nashor')
-            elif '전령' in x :
-                red.append(np.nan)
-                blue.append('summon_herald')
+    df_nashor_pre = df[df.notice.str.contains('내셔')]
+    df_herald_pre = df[df.notice.str.contains('전령')]
+    df_nashor = deduplicate(df_nashor_pre)
+    df_herald = deduplicate(df_herald_pre)
+    df_object = pd.concat([df_nashor, df_herald])
+    for x in range(len(df)) :
+        if x in df_object.index :
+            if '파랑' in df['notice'][x] :
+                if '남작' in df['notice'][x] :
+                    red.append(np.nan)
+                    blue.append('nashor')
+                elif '전령' in df['notice'][x] :
+                    red.append(np.nan)
+                    blue.append('summon_herald')
+                else:
+                    red.append(np.nan)
+                    blue.append(np.nan)
+            elif '빨강' in df['notice'][x] :
+                if '남작' in df['notice'][x] :
+                    blue.append(np.nan)
+                    red.append('nashor')
+                elif '전령' in df['notice'][x] :
+                    blue.append(np.nan)
+                    red.append('summon_herald')
+                else:
+                    red.append(np.nan)
+                    blue.append(np.nan)
             else:
+                blue.append(np.nan)
                 red.append(np.nan)
-                blue.append(np.nan)
-        elif '빨강' in x :
-            if '남작' in x :
-                blue.append(np.nan)
-                red.append('nashor')
-            elif '전령' in x :
-                blue.append(np.nan)
-                red.append('summon_herald')
-            else:
-                red.append(np.nan)
-                blue.append(np.nan)
         else:
             blue.append(np.nan)
             red.append(np.nan)
-    blue = deduplicate(blue)
-    red = deduplicate(red)
     return blue, red
 
 """ Get list of level aligned by timestamp as float from input dataframe
