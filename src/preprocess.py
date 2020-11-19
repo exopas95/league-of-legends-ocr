@@ -289,6 +289,14 @@ def get_kda(df, side, pos, kda) :
     - param data: Once-processed dataframe (has multiple-read in 'notice') 
     - type data: dataframe
 """
+
+def df_target(df, keyword):
+    target_index = []
+    for x in df.index:
+        if keyword in df.notice.loc[x]:
+            target_index.append(x)
+    return df.loc[target_index, :]
+
 def deduplicate(df):
     dedup_index = []
     for i in df.index:
@@ -310,7 +318,7 @@ def get_drake(df) :
         for y in drake_type:
             if (y in x) and (y not in seq) :
                 seq.append(y)
-    df_drake_pre = df[df.notice.str.contains('드래곤')]
+    df_drake_pre = df_target(df_ingame, '드래곤')
     df_drake = deduplicate(df_drake_pre)
     blue = []
     red = []
@@ -364,8 +372,8 @@ def get_drake(df) :
 def get_nashor_herald(df) :
     blue = []
     red = []
-    df_nashor_pre = df[df.notice.str.contains('내셔')]
-    df_herald_pre = df[df.notice.str.contains('전령')]
+    df_nashor_pre = df_target(df_ingame, '내셔')
+    df_herald_pre = df_target(df_ingame, '')
     df_nashor = deduplicate(df_nashor_pre)
     df_herald = deduplicate(df_herald_pre)
     df_object = pd.concat([df_nashor, df_herald])
