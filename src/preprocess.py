@@ -295,7 +295,7 @@ def deduplicate(df):
         if len(dedup_index) == 0:
             dedup_index.append(i)
         else:
-            if dedup_index[-1]+4 < i:                       #Find that notice can be read max three~four times
+            if int(dedup_index[-1].split('_')[-1])+4 < int(i.split('_')[-1]):
                 dedup_index.append(i)
     return df.loc[dedup_index, :]
 
