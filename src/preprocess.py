@@ -502,6 +502,7 @@ def get_set_score(df, side) :
 """
 def result_process(df) :
     game_df = get_game_df(df)
+    print(game_df.index)
     processed_df = pd.DataFrame({'timestamp' : get_timestamp(game_df),
 
                                 'red_teamgold' : get_teamgold(game_df, 'red'),
@@ -542,8 +543,8 @@ def result_process(df) :
                                 'red_sup_d' : get_kda(game_df, 'red', 'sup', 'd'),
                                 'red_sup_a' : get_kda(game_df, 'red', 'sup', 'a'),
 
-                                'red_drake' : get_drake(game_df)[1],
-                                'red_nashor_herald' : get_nashor_herald(game_df)[1],
+#                                 'red_drake' : get_drake(game_df)[1],
+#                                 'red_nashor_herald' : get_nashor_herald(game_df)[1],
 
                                 'blue_teamgold' : get_teamgold(game_df, 'blue'),
 
@@ -599,10 +600,10 @@ def result_process(df) :
                                 'red_tower_score' : get_tower_score(game_df, 'red'),
                                 
                                 'blue_set_score' : get_set_score(game_df,'blue'),
-                                'red_set_score' : get_set_score(game_df,'red'),
+                                'red_set_score' : get_set_score(game_df,'red')}).set_index('timestamp')
                                 
-                                'blue_drake' : get_drake(game_df)[0],
-                                'blue_nashor_herald' : get_nashor_herald(game_df)[0]}).set_index('timestamp')
+#                                 'blue_drake' : get_drake(game_df)[0],
+#                                 'blue_nashor_herald' : get_nashor_herald(game_df)[0]
                                 
                                 
                                 
