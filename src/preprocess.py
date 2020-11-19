@@ -127,7 +127,7 @@ def make_inc(a, ths) :
 def make_dec(a, ths) :
     a_temp = []
     i = len(a)-1                                    # Start from back
-    temp = 0
+    temp = 99999
     coin = 0
     while i >= 0 :
         if np.isnan(a[i]) :
