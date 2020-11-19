@@ -318,26 +318,28 @@ def get_drake(df) :
     red_dra_stack = 0
     has_error = ''
     total_stack = blue_dra_stack + red_dra_stack
-    for x in range(len(df)) :
+    for x in df.index :
         if x in df_drake.index:
-            if '드래곤' in df['notice'][x] :
-                if '파랑' in df['notice'][x] :
+            if '드래곤' in df.notice.loc[x] :
+                if '파랑' in df.notice.loc[x] :
                     blue_dra_stack += 1
                     red.append(np.nan)
                     total_stack = blue_dra_stack + red_dra_stack
                     if total_stack < 3:
-                        blue.append(has_error+seq[total_stack]+'DRAKE')
+                        blue.append(has_error+seq[total_stack-1]+'DRAKE')
+                        print(seq[total_stack-1])
                     elif total_stack >= 3:
                         if (blue_dra_stack > 4) or (red_dra_stack >= 4):      #red got 4 dragon or blue already got 4 dragon 
                             blue.append(has_error+'ELDER'+'DRAKE')
                         else:
                             blue.append(has_error+seq[2]+'DRAKE')
-                elif '빨강' in df['notice'][x] :
+                            print(seq[2])
+                elif '빨강' in df.notice.loc[x] :
                     red_dra_stack += 1
                     blue.append(np.nan)
                     total_stack = blue_dra_stack + red_dra_stack
                     if total_stack < 3:
-                        red.append(has_error+seq[total_stack]+'DRAKE')
+                        red.append(has_error+seq[total_stack-1]+'DRAKE')
                     elif total_stack >= 3:
                         if (red_dra_stack > 4) or (blue_dra_stack >= 4):
                             red.append(has_error+'ELDER'+'DRAKE')
@@ -367,23 +369,23 @@ def get_nashor_herald(df) :
     df_nashor = deduplicate(df_nashor_pre)
     df_herald = deduplicate(df_herald_pre)
     df_object = pd.concat([df_nashor, df_herald])
-    for x in range(len(df)) :
+    for x in df.index :
         if x in df_object.index :
-            if '파랑' in df['notice'][x] :
-                if '남작' in df['notice'][x] :
+            if '파랑' in df.notice.loc[x] :
+                if '남작' in df.notice.loc[x] :
                     red.append(np.nan)
                     blue.append('nashor')
-                elif '전령' in df['notice'][x] :
+                elif '전령' in df.notice.loc[x] :
                     red.append(np.nan)
                     blue.append('summon_herald')
                 else:
                     red.append(np.nan)
                     blue.append(np.nan)
-            elif '빨강' in df['notice'][x] :
-                if '남작' in df['notice'][x] :
+            elif '빨강' in df.notice.loc[x] :
+                if '남작' in df.notice.loc[x] :
                     blue.append(np.nan)
                     red.append('nashor')
-                elif '전령' in df['notice'][x] :
+                elif '전령' in df.notice.loc[x] :
                     blue.append(np.nan)
                     red.append('summon_herald')
                 else:
@@ -395,6 +397,7 @@ def get_nashor_herald(df) :
         else:
             blue.append(np.nan)
             red.append(np.nan)
+        
     return blue, red
 
 """ Get list of level aligned by timestamp as float from input dataframe
