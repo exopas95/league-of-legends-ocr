@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import time
 import re
+import math
 
 
 """ Returns [kill, death, assist] if input word can be decrypted else nan
@@ -476,8 +477,86 @@ def get_vision_score(df, side, pos) :
             l.append(judge_level(x,side))
         else :
             l.append(np.nan)
-    return make_monotonic(l, 5)
+    def valid_vision_score(l):
+        include_nan = []
+        except_nan = []
+        for x in l:
+            if math.isnan(x):
+                include_nan.append(np.nan)
+            else:
+                y = int(x)
+                if len(except_nan) == 0:
+                    include_nan.append(y)
+                    except_nan.append(y)
+                else:
+                    if y >= except_nan[-1]:
+                        if len(str(y)) > len(str(except_nan[-1])):
+                            if (str(y)[-1] == '1') or (str(y)[-1] == '2'):
+                                if (y > except_nan[-1] + 9):
+                                    include_nan.append(int(str(y)[:-1]))
+                                    except_nan.append(int(str(y)[:-1]))
+                                else:
+                                    include_nan.append(y)
+                                    except_nan.append(y)
+                            elif (str(y)[0] == '7') or (str(y)[0] == '2'):
+                                if (y > except_nan[-1] + 9):
+                                    include_nan.append(int(str(y)[1:]))
+                                    except_nan.append(int(str(y)[1:])) 
+                                else:
+                                    include_nan.append(y)
+                                    except_nan.append(y)
+                            else:
+                                include_nan.append(y)
+                                except_nan.append(y)
+                        else:
+                            include_nan.append(y)
+                            except_nan.append(y)
+                    else:
+                        if (except_nan[-1] == 1) and (y == 0):
+                            except_nan.pop(-1)
+#                            include_nan.pop(-1)
+                            except_nan.append(0)
+                            include_nan.append(0)
+                        else:
+                            include_nan.append(np.nan)
+        return include_nan
+    return valid_vision_score(l)
+"""
+valid = []
+last_num = np.nan
+idx = []
 
+for x in l:
+    if math.isnan(x):
+        valid.append(np.nan)
+    else:
+        y = int(x)
+        if last_num == np.nan:
+            valid.append(y)
+            last_num = y
+        else:
+            if y >= last_num:
+                if len(str(y)) > len(str(last_num)):
+                    if (str(y)[-1] == '1') or (str(y)[-1] == '2'):
+                        if (y - last_num > 9):
+                            valid.append(int(str(y)[-1]))
+                            last_num = int(str(y)[-1])
+                        else:
+                            valid.append(y)
+                            last_num = y
+                    else:
+                        valid.append(y)
+                        last_num = y
+                elif (len(str(y)) == len(str(last_num))) and (last_num == 1) and (y == 0):
+                    last_num = 0
+                    valid.append(0)
+                else:
+                    valid.append(y)
+                    last_num = y
+            else:
+                valid.append(y)
+                last_num = y
+"""
 
 def get_tower_score(df, side) :
     l=[]
@@ -605,7 +684,7 @@ def result_process(df) :
                                 'red_nashor_herald' : get_nashor_herald(game_df)[1],
                                 
                                 'blue_set_score' : get_set_score(game_df,'blue'),
-                                'red_set_score' : get_set_score(game_df,'red')}).set_index('timestamp')]}).set_index('timestamp')
+                                'red_set_score' : get_set_score(game_df,'red')}).set_index('timestamp')
                                 
                                 
                                 
