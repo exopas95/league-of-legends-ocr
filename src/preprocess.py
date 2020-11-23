@@ -469,7 +469,7 @@ def get_shutdown(df, side, pos) :
         gold.append(findgold(text))
 
     return gold
-    
+
 def get_vision_score(df, side, pos) :
     l=[]
     for x in df[side+'_'+pos+'_vision_score'].values :
@@ -508,19 +508,71 @@ def get_vision_score(df, side, pos) :
                             else:
                                 include_nan.append(y)
                                 except_nan.append(y)
+                        elif (len(str(y)) == len(str(except_nan[-1]))) and (except_nan[-1] == 1) and (y == 0):
+                            except_nan.append(0)
+                            include_nan.append(0)
                         else:
                             include_nan.append(y)
                             except_nan.append(y)
                     else:
-                        if (except_nan[-1] == 1) and (y == 0):
-                            except_nan.pop(-1)
-#                            include_nan.pop(-1)
-                            except_nan.append(0)
-                            include_nan.append(0)
-                        else:
-                            include_nan.append(np.nan)
+                        include_nan.append(np.nan)
         return include_nan
     return valid_vision_score(l)
+
+
+
+
+'''
+def get_vision_score(df, side, pos) :
+    l=[]
+    for x in df[side+'_'+pos+'_vision_score'].values :
+        if len(x) > 0 :
+            l.append(judge_level(x,side))
+        else :
+            l.append(np.nan)
+    def valid_vision_score(l):
+        valid = []
+        last_num = np.nan
+        for x in l:
+            if math.isnan(x):
+                valid.append(np.nan)
+            else:
+                y = int(x)
+                if last_num == np.nan:
+                    valid.append(y)
+                    last_num = y
+                else:
+                    if y >= last_num:
+                        if len(str(y)) > len(str(last_num)):
+                            if (str(y)[-1] == '1') or (str(y)[-1] == '2'):
+                                if (y - last_num > 9):
+                                    valid.append(int(str(y)[:-1]))
+                                    last_num = int(str(y)[:-1])
+                                else:
+                                    valid.append(y)
+                                    last_num = y
+                            else:
+                                valid.append(y)
+                                last_num = y
+                        elif (len(str(y)) == len(str(last_num))) and (last_num == 1) and (y == 0):
+                            last_num = 0
+                            for z in range(len(valid)):
+                                if math.isnan(valid[z]):
+                                    continue
+                                else:
+                                     valid[z] = 0
+                            valid.append(0)
+                        else:
+                            valid.append(y)
+                            last_num = y
+                    else:
+                        valid.append(np.nan)
+        return valid
+    return valid_vision_score(l)
+'''
+
+
+
 """
 valid = []
 last_num = np.nan
