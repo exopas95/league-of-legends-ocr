@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import time
 import re
+import math
 
 
 """ Returns [kill, death, assist] if input word can be decrypted else nan
@@ -468,7 +469,8 @@ def get_shutdown(df, side, pos) :
         gold.append(findgold(text))
 
     return gold
-    
+
+
 def get_vision_score(df, side, pos) :
     l=[]
     for x in df[side+'_'+pos+'_vision_score'].values :
@@ -476,7 +478,48 @@ def get_vision_score(df, side, pos) :
             l.append(judge_level(x,side))
         else :
             l.append(np.nan)
-    return make_monotonic(l, 5)
+    return l
+
+def valid_vision_score(l):
+    include_nan = []
+    except_nan = []
+    for x in l:
+        if math.isnan(x):
+            include_nan.append(np.nan)
+        else:
+            y = int(x)
+            if len(except_nan) == 0:
+                include_nan.append(y)
+                except_nan.append(y)
+            else:
+                if y > except_nan[-1]:
+                    if len(str(y)) > len(str(except_nan[-1])):
+                        if (str(y)[-1] == '1') or (str(y)[-1] == '2'):
+                            if (y > except_nan[-1] + 9):
+                                include_nan.append(int(str(y)[:-1]))
+                                except_nan.append(int(str(y)[:-1]))
+                            else:
+                                include_nan.append(y)
+                                except_nan.append(y)
+                        elif (str(y)[0] == '7') or (str(y)[0] == '2'):
+                            if (y > except_nan[-1] + 9):
+                                include_nan.append(int(str(y)[1:]))
+                                except_nan.append(int(str(y)[1:])) 
+                            else:
+                                include_nan.append(y)
+                                except_nan.append(y)
+                        else:
+                            include_nan.append(y)
+                            except_nan.append(y)
+                    else:
+                        include_nan.append(y)
+                        except_nan.append(y)
+                elif y == except_nan[-1]:
+                    include_nan.append(y)
+                    except_nan.append(y)                    
+                else:
+                    include_nan.append(np.nan)
+    return include_nan
 
 
 def get_tower_score(df, side) :
@@ -584,17 +627,17 @@ def result_process(df) :
                                 'blue_sup_d' : get_kda(game_df, 'blue', 'sup', 'd'),
                                 'blue_sup_a' : get_kda(game_df, 'blue', 'sup', 'a'),
                                 
-                                'blue_top_vision_score' : get_vision_score(game_df,'blue','top'),
-                                'blue_jug_vision_score' : get_vision_score(game_df,'blue','jug'),
-                                'blue_mid_vision_score' : get_vision_score(game_df,'blue','mid'),
-                                'blue_bot_vision_score' : get_vision_score(game_df,'blue','bot'),
-                                'blue_sup_vision_score' : get_vision_score(game_df,'blue','sup'),
+                                'blue_top_vision_score' : valid_vision_score(get_vision_score(game_df,'blue','top')),
+                                'blue_jug_vision_score' : valid_vision_score(get_vision_score(game_df,'blue','jug')),
+                                'blue_mid_vision_score' : valid_vision_score(get_vision_score(game_df,'blue','mid')),
+                                'blue_bot_vision_score' : valid_vision_score(get_vision_score(game_df,'blue','bot')),
+                                'blue_sup_vision_score' : valid_vision_score(get_vision_score(game_df,'blue','sup')),
                                 
-                                'red_top_vision_score' : get_vision_score(game_df,'red','top'),
-                                'red_jug_vision_score' : get_vision_score(game_df,'red','jug'),
-                                'red_mid_vision_score' : get_vision_score(game_df,'red','mid'),
-                                'red_bot_vision_score' : get_vision_score(game_df,'red','bot'),
-                                'red_sup_vision_score' : get_vision_score(game_df,'red','sup'),
+                                'red_top_vision_score' : valid_vision_score(get_vision_score(game_df,'red','top')),
+                                'red_jug_vision_score' : valid_vision_score(get_vision_score(game_df,'red','jug')),
+                                'red_mid_vision_score' : valid_vision_score(get_vision_score(game_df,'red','mid')),
+                                'red_bot_vision_score' : valid_vision_score(get_vision_score(game_df,'red','bot')),
+                                'red_sup_vision_score' : valid_vision_score(get_vision_score(game_df,'red','sup')),
                                 
                                 'blue_tower_score' : get_tower_score(game_df,'blue'),
                                 'red_tower_score' : get_tower_score(game_df, 'red'),
