@@ -471,7 +471,6 @@ def get_shutdown(df, side, pos) :
     return gold
 
 
-
 def get_vision_score(df, side, pos) :
     l=[]
     for x in df[side+'_'+pos+'_vision_score'].values :
@@ -485,44 +484,45 @@ def valid_vision_score(l):
     include_nan = []
     except_nan = []
     for x in l:
-        if math.isnan(x):
-            include_nan.append(np.nan)
+        if math.isnan(x):                                                      #x가 nan값이면 nan추가
+            include_nan.append(np.nan)                                  
         else:
             y = int(x)
-            if len(except_nan) == 0:
+            if len(except_nan) == 0:                                           #첫 숫자는 바로 추가
                 include_nan.append(y)
                 except_nan.append(y)
-            else:
-                if y >= except_nan[-1]:
-                    if len(str(y)) > len(str(except_nan[-1])):
-                        if (str(y)[-1] == '1') or (str(y)[-1] == '2'):
-                            if (y > except_nan[-1] + 9):
-                                include_nan.append(int(str(y)[:-1]))
+            else:                                                              #첫 숫자가 아니면
+                if y > except_nan[-1]:                                         #새 값이 마지막 숫자보다 크면
+                    if len(str(y)) > len(str(except_nan[-1])):                 #새 값의 자릿수가 더 크면
+                        if (str(y)[-1] == '1') or (str(y)[-1] == '2'):         # 새 값이 1이나 2로 끝나면
+                            if (y > except_nan[-1] + 9):                       #새 값이 마지막 값보다 9이상 크다면 (1->11) 
+                                include_nan.append(int(str(y)[:-1]))                                                
                                 except_nan.append(int(str(y)[:-1]))
-                            else:
+                            else:                                              #새 값과 마지막 값의 차이가 적다면
                                 include_nan.append(y)
                                 except_nan.append(y)
-                        elif (str(y)[0] == '7') or (str(y)[0] == '2'):
-                            if (y > except_nan[-1] + 9):
-                                include_nan.append(int(str(y)[1:]))
+                        elif (str(y)[0] == '7') or (str(y)[0] == '2'):         #새 값이 2나 7로 시작하면
+                            if (y > except_nan[-1] + 9):                       #새 값이 마지막 값보다 9이상 크다면 (9->29)
+                                include_nan.append(int(str(y)[1:]))                                                 
                                 except_nan.append(int(str(y)[1:])) 
-                            else:
+                            else:                                              #새 값과 마지막 값의 차이가 적다면
                                 include_nan.append(y)
                                 except_nan.append(y)
-                        else:
+                        else:                                                  # 새 값의 자릿수가 더 크지만 다른 에러가 없을 경우
                             include_nan.append(y)
                             except_nan.append(y)
-                    elif (len(str(y)) == len(str(except_nan[-1]))) and (except_nan[-1] == 1) and (y == 0):
-                        except_nan.append(0)
-                        include_nan.append(0)
-                    else:
+                    else:                                                      #새 값이 더 크지만 마지막 숫자보다 자리수가 크지 않을 때
                         include_nan.append(y)
                         except_nan.append(y)
-                else:
+                elif y == except_nan[-1]:
+                    except_nan.append(y)
+                    include_nan.append(y)
+                elif (except_nan[-1] == 1) and (y == 0):                       # 1->0으로 떨어지는 경우
+                    except_nan.append(y)
+                    include_nan.append(y)
+                else:                                                          # 새값이 더 작은 경우
                     include_nan.append(np.nan)
     return include_nan
-
-
 '''
 def get_vision_score(df, side, pos) :
     l=[]
