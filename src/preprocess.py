@@ -484,132 +484,43 @@ def valid_vision_score(l):
     include_nan = []
     except_nan = []
     for x in l:
-        if math.isnan(x):                                                      #x가 nan값이면 nan추가
-            include_nan.append(np.nan)                                  
+        if math.isnan(x):
+            include_nan.append(np.nan)
         else:
             y = int(x)
-            if len(except_nan) == 0:                                           #첫 숫자는 바로 추가
+            if len(except_nan) == 0:
                 include_nan.append(y)
                 except_nan.append(y)
-            else:                                                              #첫 숫자가 아니면
-                if y > except_nan[-1]:                                         #새 값이 마지막 숫자보다 크면
-                    if len(str(y)) > len(str(except_nan[-1])):                 #새 값의 자릿수가 더 크면
-                        if (str(y)[-1] == '1') or (str(y)[-1] == '2'):         # 새 값이 1이나 2로 끝나면
-                            if (y > except_nan[-1] + 9):                       #새 값이 마지막 값보다 9이상 크다면 (1->11) 
-                                include_nan.append(int(str(y)[:-1]))                                                
+            else:
+                if y > except_nan[-1]:
+                    if len(str(y)) > len(str(except_nan[-1])):
+                        if (str(y)[-1] == '1') or (str(y)[-1] == '2'):
+                            if (y > except_nan[-1] + 9):
+                                include_nan.append(int(str(y)[:-1]))
                                 except_nan.append(int(str(y)[:-1]))
-                            else:                                              #새 값과 마지막 값의 차이가 적다면
+                            else:
                                 include_nan.append(y)
                                 except_nan.append(y)
-                        elif (str(y)[0] == '7') or (str(y)[0] == '2'):         #새 값이 2나 7로 시작하면
-                            if (y > except_nan[-1] + 9):                       #새 값이 마지막 값보다 9이상 크다면 (9->29)
-                                include_nan.append(int(str(y)[1:]))                                                 
+                        elif (str(y)[0] == '7') or (str(y)[0] == '2'):
+                            if (y > except_nan[-1] + 9):
+                                include_nan.append(int(str(y)[1:]))
                                 except_nan.append(int(str(y)[1:])) 
-                            else:                                              #새 값과 마지막 값의 차이가 적다면
+                            else:
                                 include_nan.append(y)
                                 except_nan.append(y)
-                        else:                                                  # 새 값의 자릿수가 더 크지만 다른 에러가 없을 경우
+                        else:
                             include_nan.append(y)
                             except_nan.append(y)
-                    else:                                                      #새 값이 더 크지만 마지막 숫자보다 자리수가 크지 않을 때
+                    else:
                         include_nan.append(y)
                         except_nan.append(y)
                 elif y == except_nan[-1]:
-                    except_nan.append(y)
                     include_nan.append(y)
-                elif (except_nan[-1] == 1) and (y == 0):                       # 1->0으로 떨어지는 경우
-                    except_nan.append(y)
-                    include_nan.append(y)
-                else:                                                          # 새값이 더 작은 경우
+                    except_nan.append(y)                    
+                else:
                     include_nan.append(np.nan)
     return include_nan
-'''
-def get_vision_score(df, side, pos) :
-    l=[]
-    for x in df[side+'_'+pos+'_vision_score'].values :
-        if len(x) > 0 :
-            l.append(judge_level(x,side))
-        else :
-            l.append(np.nan)
-    def valid_vision_score(l):
-        valid = []
-        last_num = np.nan
-        for x in l:
-            if math.isnan(x):
-                valid.append(np.nan)
-            else:
-                y = int(x)
-                if last_num == np.nan:
-                    valid.append(y)
-                    last_num = y
-                else:
-                    if y >= last_num:
-                        if len(str(y)) > len(str(last_num)):
-                            if (str(y)[-1] == '1') or (str(y)[-1] == '2'):
-                                if (y - last_num > 9):
-                                    valid.append(int(str(y)[:-1]))
-                                    last_num = int(str(y)[:-1])
-                                else:
-                                    valid.append(y)
-                                    last_num = y
-                            else:
-                                valid.append(y)
-                                last_num = y
-                        elif (len(str(y)) == len(str(last_num))) and (last_num == 1) and (y == 0):
-                            last_num = 0
-                            for z in range(len(valid)):
-                                if math.isnan(valid[z]):
-                                    continue
-                                else:
-                                     valid[z] = 0
-                            valid.append(0)
-                        else:
-                            valid.append(y)
-                            last_num = y
-                    else:
-                        valid.append(np.nan)
-        return valid
-    return valid_vision_score(l)
-'''
 
-
-
-"""
-valid = []
-last_num = np.nan
-idx = []
-
-for x in l:
-    if math.isnan(x):
-        valid.append(np.nan)
-    else:
-        y = int(x)
-        if last_num == np.nan:
-            valid.append(y)
-            last_num = y
-        else:
-            if y >= last_num:
-                if len(str(y)) > len(str(last_num)):
-                    if (str(y)[-1] == '1') or (str(y)[-1] == '2'):
-                        if (y - last_num > 9):
-                            valid.append(int(str(y)[-1]))
-                            last_num = int(str(y)[-1])
-                        else:
-                            valid.append(y)
-                            last_num = y
-                    else:
-                        valid.append(y)
-                        last_num = y
-                elif (len(str(y)) == len(str(last_num))) and (last_num == 1) and (y == 0):
-                    last_num = 0
-                    valid.append(0)
-                else:
-                    valid.append(y)
-                    last_num = y
-            else:
-                valid.append(y)
-                last_num = y
-"""
 
 def get_tower_score(df, side) :
     l=[]
