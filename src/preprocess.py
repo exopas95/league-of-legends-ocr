@@ -605,7 +605,7 @@ def result_process(df) :
                                 'red_nashor_herald' : get_nashor_herald(game_df)[1],
                                 
                                 'blue_set_score' : get_set_score(game_df,'blue'),
-                                'red_set_score' : get_set_score(game_df,'red')}).set_index('timestamp')]}).set_index('timestamp')
+                                'red_set_score' : get_set_score(game_df,'red')}).set_index('timestamp')
                                 
                                 
                                 
