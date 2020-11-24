@@ -573,9 +573,10 @@ text_str = ['start_sentence', 'minion_30_sentence', 'minion_sentence', 'first_bl
 def get_sentence(df) :
 
     def list_to_str(x) :
-        result = re.compile('[가-힣a-zA-Z]+').findall(x)
+        result = ''.join(x)
+        result = re.sub('[^a-zA-Z가-힣]+', '', result)
         if result :
-            result = ''.join(result)
+            return result
         else :
             result = np.nan
         return result
@@ -689,7 +690,8 @@ def get_kill(df) :
             killer.append( 'IDK' )
             victim.append( 'IDK' )
         elif 'kill' in df.sentence[x] :
-            cleaned_x = re.compile('[가-힣a-zA-Z0-9]+').findall(df.notice[x])
+            cleaned_x = ''.join(df.notice[x])
+            cleaned_x = re.sub('[^a-zA-Z가-힣]+', '', cleaned_x)
             ki, vi = killer_victim_find(cleaned_x)
             killer.append(ki)
             victim.append(vi)
