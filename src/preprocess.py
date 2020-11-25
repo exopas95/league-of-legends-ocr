@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 import time
 import re
+import math
+import src.constants as constants
 
 
 """ Returns [kill, death, assist] if input word can be decrypted else nan
@@ -55,7 +57,6 @@ def judge_kda(x) :
 """ Find a value of level where portraits are masked with '999'
      - param x: A list contains characters from portrait
      - type x: list
-
      - param side: 'blue' or 'red'
      - type side: str
 """
@@ -206,7 +207,6 @@ def get_timestamp(df) :
 """ Get list of teamgold aligned by timestamp as float from input dataframe
     - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
     - type df: dataframe
-
     - param side: 'red' or 'blue' 
     - type side: str
 """
@@ -239,10 +239,8 @@ def get_teamgold(df, side) :
 """ Get list of cs aligned by timestamp as float from input dataframe
     - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
     - type df: dataframe
-
     - param side: 'red' or 'blue' 
     - type side: str
-
     - param pos: 'top' / 'jug' / 'mid' / 'bot' / 'sup' 
     - type pos: str
 """
@@ -262,13 +260,10 @@ def get_cs(df, side, pos) :
 """ Get list of kda aligned by timestamp as float from input dataframe
     - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
     - type df: dataframe
-
     - param side: 'red' or 'blue' 
     - type side: str
-
     - param pos: 'top' / 'jug' / 'mid' / 'bot' / 'sup' 
     - type pos: str
-
     - param kda: 'k' / 'd' / 'a' 
     - type pos: str
 """
@@ -416,10 +411,8 @@ def get_nashor_herald(df) :
 """ Get list of level aligned by timestamp as float from input dataframe
      - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
      - type df: dataframe
-
      - param side: 'red' or 'blue' 
      - type side: str
-
      - param pos: 'top' / 'jug' / 'mid' / 'bot' / 'sup' 
      - type pos: str
 """
@@ -468,7 +461,8 @@ def get_shutdown(df, side, pos) :
         gold.append(findgold(text))
 
     return gold
-    
+
+
 def get_vision_score(df, side, pos) :
     l=[]
     for x in df[side+'_'+pos+'_vision_score'].values :
@@ -476,7 +470,48 @@ def get_vision_score(df, side, pos) :
             l.append(judge_level(x,side))
         else :
             l.append(np.nan)
-    return make_monotonic(l, 5)
+    return l
+
+def valid_vision_score(l):
+    include_nan = []
+    except_nan = []
+    for x in l:
+        if math.isnan(x):
+            include_nan.append(np.nan)
+        else:
+            y = int(x)
+            if len(except_nan) == 0:
+                include_nan.append(y)
+                except_nan.append(y)
+            else:
+                if y > except_nan[-1]:
+                    if len(str(y)) > len(str(except_nan[-1])):
+                        if (str(y)[-1] == '1') or (str(y)[-1] == '2'):
+                            if (y > except_nan[-1] + 9):
+                                include_nan.append(int(str(y)[:-1]))
+                                except_nan.append(int(str(y)[:-1]))
+                            else:
+                                include_nan.append(y)
+                                except_nan.append(y)
+                        elif (str(y)[0] == '7') or (str(y)[0] == '2'):
+                            if (y > except_nan[-1] + 9):
+                                include_nan.append(int(str(y)[1:]))
+                                except_nan.append(int(str(y)[1:])) 
+                            else:
+                                include_nan.append(y)
+                                except_nan.append(y)
+                        else:
+                            include_nan.append(y)
+                            except_nan.append(y)
+                    else:
+                        include_nan.append(y)
+                        except_nan.append(y)
+                elif y == except_nan[-1]:
+                    include_nan.append(y)
+                    except_nan.append(y)                    
+                else:
+                    include_nan.append(np.nan)
+    return include_nan
 
 
 def get_tower_score(df, side) :
@@ -496,6 +531,151 @@ def get_set_score(df, side) :
         else :
             l.append(np.nan)
     return make_monotonic(l, 5)
+
+def get_sentence(df) :
+
+    def list_to_str(x) :
+        result = ''.join(x)
+        result = re.sub('[^a-zA-Z가-힣]+', '', result)
+        if result :
+            return result
+        else :
+            result = np.nan
+        return result
+
+    def notice_cleaner(df) :
+        text = df.notice.apply(
+            lambda x : list_to_str(x)
+        )
+        return text
+
+    def calculator_similar(x,y) :
+        cnt = 0
+        try :
+            for x_char in x:
+                for y_char in y :
+                    if x_char == y_char :
+                        cnt += 1
+        except :
+            cnt = 0
+        return cnt/len(y)
+
+    def judge_sentence(x) :
+        if max(x) <= 0.65 :
+            return np.nan
+        return x.astype(float).idxmax()
+
+
+    similar = pd.DataFrame(columns=['text']+constants.text_str)
+    similar['text'] = notice_cleaner(df)
+    
+    for i in constants.text_str :
+        similar[i] = similar.text.apply(
+            lambda x : calculator_similar(x, constants.total_sentence[i])
+        )
+
+    real_text = []
+    for i in range(len(similar)) :
+        real_text.append(judge_sentence((similar.iloc[i,:][1:])))
+
+    similar['real_text'] = real_text
+    
+    sentence = similar.real_text.copy().fillna("0")
+
+    tmp = sentence.iloc[0]
+    tmp_idx = sentence.index[0]
+    for i in sentence.index[1:] :
+        if 'tower' in tmp :
+            if (i - tmp_idx < 5) & (sentence[i] == tmp) :
+                sentence[i] = 'DUP'
+            else :
+                tmp = sentence[i]
+                tmp_idx = i
+        else :
+            if (i - tmp_idx < 3) & (sentence[i] == tmp) :
+                sentence[i] = 'DUP'
+            else :
+                tmp = sentence[i]
+                tmp_idx = i    
+    sentence = sentence.replace("0","DUP")
+
+    return sentence
+
+def get_kill(df) :
+    df['sentence'] = get_sentence(df)
+    def killer_victim_find(x) :
+        n_sub = 0
+        for char in x :
+            if (char == "임") | (char=='님') :
+                n_sub += 1
+        if n_sub == 0 :
+            return 'IDK', 'IDK'
+        
+        if n_sub == 1 :
+            if '님' in x :
+                return x[x.index("님")-1], 'IDK'
+            else :
+                return x[x.index('임')-1], 'IDK'
+        if n_sub >= 2 :
+            try :
+                a = x.index("님")
+            except :
+                a = 100
+            try :
+                b = x.index("임")
+            except :
+                b = 100
+            re1 = min(a,b)
+
+            rev = list(reversed(x))
+            try :
+                a = rev.index("님")
+            except :
+                a = 100
+            try :
+                b = rev.index("임")
+            except :
+                b = 100
+            re2 = min(a,b)
+            return x[re1-1], rev[re2+1]
+        return 'IDK', 'IDK'
+
+
+
+    killer, victim = [], []
+    for x in df.index :
+        if 'blood' in df.sentence[x] :
+            killer.append( 'IDK' )
+            victim.append( 'IDK' )
+        elif 'kill' in df.sentence[x] :
+            cleaned_x = ''.join(df.notice[x])
+            cleaned_x = re.sub('[^a-zA-Z가-힣]+', '', cleaned_x)
+            ki, vi = killer_victim_find(cleaned_x)
+            killer.append(ki)
+            victim.append(vi)
+        else :
+            killer.append(np.nan)
+            victim.append(np.nan)
+    return killer, victim
+
+def get_tower(df) :
+    df['sentence'] = get_sentence(df)
+    def tower(sent) :
+        if 'blue_first' in sent :
+            return ("Blue_First")
+        if 'red_first' in sent :
+            return ("Red_First")
+        if 'blue_tower' in sent :
+            return ("Blue")
+        if 'red_tower' in sent :
+            return ("Red")
+        else :
+            return ("None")
+
+    result = df.sentence.apply(
+        lambda x : tower(x)
+    )
+    return result
 
 
 """ Make new dataframe with pre-processed values
@@ -574,7 +754,6 @@ def result_process(df) :
 
                                 'blue_bot_cs' : get_cs(game_df, 'blue', 'bot'),
                                 'blue_bot_shutdown' : get_shutdown(game_df, 'blue', 'bot'),
-                                
                                 'blue_bot_k' : get_kda(game_df, 'blue', 'bot', 'k'),
                                 'blue_bot_d' : get_kda(game_df, 'blue', 'bot', 'd'),
                                 'blue_bot_a' : get_kda(game_df, 'blue', 'bot', 'a'),
@@ -585,17 +764,17 @@ def result_process(df) :
                                 'blue_sup_d' : get_kda(game_df, 'blue', 'sup', 'd'),
                                 'blue_sup_a' : get_kda(game_df, 'blue', 'sup', 'a'),
                                 
-                                'blue_top_vision_score' : get_vision_score(game_df,'blue','top'),
-                                'blue_jug_vision_score' : get_vision_score(game_df,'blue','jug'),
-                                'blue_mid_vision_score' : get_vision_score(game_df,'blue','mid'),
-                                'blue_bot_vision_score' : get_vision_score(game_df,'blue','bot'),
-                                'blue_sup_vision_score' : get_vision_score(game_df,'blue','sup'),
+                                'blue_top_vision_score' : valid_vision_score(get_vision_score(game_df,'blue','top')),
+                                'blue_jug_vision_score' : valid_vision_score(get_vision_score(game_df,'blue','jug')),
+                                'blue_mid_vision_score' : valid_vision_score(get_vision_score(game_df,'blue','mid')),
+                                'blue_bot_vision_score' : valid_vision_score(get_vision_score(game_df,'blue','bot')),
+                                'blue_sup_vision_score' : valid_vision_score(get_vision_score(game_df,'blue','sup')),
                                 
-                                'red_top_vision_score' : get_vision_score(game_df,'red','top'),
-                                'red_jug_vision_score' : get_vision_score(game_df,'red','jug'),
-                                'red_mid_vision_score' : get_vision_score(game_df,'red','mid'),
-                                'red_bot_vision_score' : get_vision_score(game_df,'red','bot'),
-                                'red_sup_vision_score' : get_vision_score(game_df,'red','sup'),
+                                'red_top_vision_score' : valid_vision_score(get_vision_score(game_df,'red','top')),
+                                'red_jug_vision_score' : valid_vision_score(get_vision_score(game_df,'red','jug')),
+                                'red_mid_vision_score' : valid_vision_score(get_vision_score(game_df,'red','mid')),
+                                'red_bot_vision_score' : valid_vision_score(get_vision_score(game_df,'red','bot')),
+                                'red_sup_vision_score' : valid_vision_score(get_vision_score(game_df,'red','sup')),
                                 
                                 'blue_tower_score' : get_tower_score(game_df,'blue'),
                                 'red_tower_score' : get_tower_score(game_df, 'red'),
@@ -604,6 +783,13 @@ def result_process(df) :
                                 'blue_nashor_herald' : get_nashor_herald(game_df)[0],
                                 'red_drake' : get_drake(game_df)[1],
                                 'red_nashor_herald' : get_nashor_herald(game_df)[1],
+                                
+                                 
+                                'sentence' : get_sentence(game_df),
+                                'killer' : get_kill(game_df)[0],
+                                'victim' : get_kill(game_df)[1],
+                                'tower' : get_tower(game_df),
+                               
                                 
                                 'blue_set_score' : get_set_score(game_df,'blue'),
                                 'red_set_score' : get_set_score(game_df,'red')}).set_index('timestamp')
