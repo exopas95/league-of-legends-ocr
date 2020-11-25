@@ -734,8 +734,7 @@ def get_tower(df) :
 """
 def result_process(df) :
     game_df = get_game_df(df)
-    processed_df = pd.DataFrame({"video_timestamp": get_video_timestamp(game_df),
-                                'timestamp' : get_timestamp(game_df),
+    processed_df = pd.DataFrame({'timestamp' : get_timestamp(game_df),
                                 'red_teamgold' : get_teamgold(game_df, 'red'),
 
                                 'red_top_level' : get_level(game_df, 'red', 'top'),
@@ -825,11 +824,6 @@ def result_process(df) :
                                 
                                 'blue_tower_score' : get_tower_score(game_df,'blue'),
                                 'red_tower_score' : get_tower_score(game_df, 'red'),
-
-                                'blue_drake' : get_drake(game_df)[0],
-                                'blue_nashor_herald' : get_nashor_herald(game_df)[0],
-                                'red_drake' : get_drake(game_df)[1],
-                                'red_nashor_herald' : get_nashor_herald(game_df)[1],
                                 
                                 'sentence' : get_sentence(game_df),
                                 'killer' : get_kill(game_df)[0],
