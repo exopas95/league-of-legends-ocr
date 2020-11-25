@@ -583,15 +583,17 @@ def get_sentence(df) :
     sentence = similar.real_text.copy().fillna("0")
 
     tmp = sentence.iloc[0]
-    tmp_idx = sentence.index[0]
-    for i in sentence.index[1:] :
+    tmp_idx = int(0)
+    for i in range(1,len(sentence)) :
         if 'tower' in tmp :
+#            print(i, tmp, tmp_idx)
             if (i - tmp_idx < 5) & (sentence[i] == tmp) :
                 sentence[i] = 'DUP'
             else :
                 tmp = sentence[i]
                 tmp_idx = i
         else :
+#            print(i, tmp, tmp_idx)
             if (i - tmp_idx < 3) & (sentence[i] == tmp) :
                 sentence[i] = 'DUP'
             else :
