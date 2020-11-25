@@ -69,57 +69,56 @@ def detect_text(content, w, h, client):
 # Main function
 def run():
     # GCP Vision Intelligence API
-    # client = vision.ImageAnnotatorClient()
+    client = vision.ImageAnnotatorClient()
 
-    # seconds = 120                                                                         # Set frequency 
-    # for video in video_list:
-    #     print(f"Start Processing: {video}")
-    #     cam = cv2.VideoCapture(constants.VIDEO_PATH + "\\" + video)                     # Video Capture start
-    #     length = cam.get(cv2.CAP_PROP_FRAME_COUNT)                                      # Get the total number of the frames 
-    #     fps = cam.get(cv2.CAP_PROP_FPS)                                                 # Get fps information of the video 
-    #     multiplier = fps * seconds                                                      # Set multiplier
+    seconds = 120                                                                         # Set frequency 
+    for video in video_list:
+        print(f"Start Processing: {video}")
+        cam = cv2.VideoCapture(constants.VIDEO_PATH + "\\" + video)                     # Video Capture start
+        length = cam.get(cv2.CAP_PROP_FRAME_COUNT)                                      # Get the total number of the frames 
+        fps = cam.get(cv2.CAP_PROP_FPS)                                                 # Get fps information of the video 
+        multiplier = fps * seconds                                                      # Set multiplier
 
-    #     w, h = cam.get(3), cam.get(4)                                                   # Get width and height information of the video
-    #     df_result = pd.DataFrame(columns=constants.cols).T                              # Initialize data frame
+        w, h = cam.get(3), cam.get(4)                                                   # Get width and height information of the video
+        df_result = pd.DataFrame(columns=constants.cols).T                              # Initialize data frame
 
-    #     current_sec = 0                                                                 # Initialize time information   
-    #     p_frame = 0                                                                     # Initialize previous frame id
-    #     pbar = tqdm(total=int(length))                                                  # Set tqdm process bar
+        current_sec = 0                                                                 # Initialize time information   
+        p_frame = 0                                                                     # Initialize previous frame id
+        pbar = tqdm(total=int(length))                                                  # Set tqdm process bar
         
-    #     # Process OCR on each frame
-    #     while(True):
-    #         ret, frame = cam.read()                                                     # Get frame
-    #         frameId = int(cam.get(1))                                                   # Get frame id of the current frame
+        # Process OCR on each frame
+        while(True):
+            ret, frame = cam.read()                                                     # Get frame
+            frameId = int(cam.get(1))                                                   # Get frame id of the current frame
 
-    #         # If frame exists
-    #         if ret:
-    #             # Process image analysis according to the set frequency... ex) 10 sec
-    #             if frameId % multiplier < 1:
-    #                 video_timestamp = str(cam.get(cv2.CAP_PROP_POS_MSEC) / 1000)        # Count time
-    #                 m_frame = bit_operation(frame)                                      # Mask current frame
-    #                 success, encoded_image = cv2.imencode('.png', m_frame)              # Read image as png file
-    #                 content = encoded_image.tobytes()                                   # Convert image from numpy to bytes
+            # If frame exists
+            if ret:
+                # Process image analysis according to the set frequency... ex) 10 sec
+                if frameId % multiplier < 1:
+                    video_timestamp = str(cam.get(cv2.CAP_PROP_POS_MSEC) / 1000)        # Count time
+                    m_frame = bit_operation(frame)                                      # Mask current frame
+                    success, encoded_image = cv2.imencode('.png', m_frame)              # Read image as png file
+                    content = encoded_image.tobytes()                                   # Convert image from numpy to bytes
 
-    #                 df = detect_text(content, w, h, client)                             # Process image OCR on the current frame
-    #                 df_result['frame_'+str(current_sec)] = df.text_list                 # Update dataframe
-    #                 df_result.loc["video_timestamp", 'frame_'+str(current_sec)] = video_timestamp
-    #                 current_sec += seconds                                              # Update time information
+                    df = detect_text(content, w, h, client)                             # Process image OCR on the current frame
+                    df_result['frame_'+str(current_sec)] = df.text_list                 # Update dataframe
+                    df_result.loc["video_timestamp", 'frame_'+str(current_sec)] = video_timestamp
+                    current_sec += seconds                                              # Update time information
 
-    #                 pbar.update(frameId - p_frame)                                      # update tqdm process bar
-    #                 p_frame = frameId                                                   # Save previous frame id
+                    pbar.update(frameId - p_frame)                                      # update tqdm process bar
+                    p_frame = frameId                                                   # Save previous frame id
             
-    #         # If frame does not exists
-    #         else:
-    #             break
+            # If frame does not exists
+            else:
+                break
 
-    #     pbar.close()                                                                    # Close tqdm process bar
-    #     cam.release()                                                                   # Close cv2 video catpure
-    #     cv2.destroyAllWindows()                                                         # Finish cv2
+        pbar.close()                                                                    # Close tqdm process bar
+        cam.release()                                                                   # Close cv2 video catpure
+        cv2.destroyAllWindows()                                                         # Finish cv2
+        df_result.T.to_csv(constants.CSV_PATH + "\\raw_" + video + ".csv", encoding="utf8")                   
 
-        # df_result.T.to_csv(constants.CSV_PATH + "\\raw_" + video + ".csv", encoding="utf8")                   
-    df_result = pd.read_csv(constants.CSV_PATH + "\\raw_T1 vs GenG Game 1 - LCK Worlds Qualifier Final Summer 2020 - T1 vs GEN G1.mp4.csv", encoding='utf8')
-    processed_df = preprocess.result_process(df_result)     
-    processed_df.to_csv(constants.CSV_PATH + "\\" + "temp_T1 vs GenG Game 1 - LCK Worlds Qualifier Final Summer 2020 - T1 vs GEN G1.mp4" + ".csv", encoding="utf8")# Create csv file
-    # print(f"Video processed and DataFrame created, Video Name: {video}")
+        processed_df = preprocess.result_process(df_result.T)     
+        processed_df.to_csv(constants.CSV_PATH + "\\" + video + ".csv", encoding="utf8")# Create csv file
+        print(f"Video processed and DataFrame created, Video Name: {video}")
 
     print("Completed")
