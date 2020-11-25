@@ -104,3 +104,41 @@ vec = {
         "vision_score":[(0.305, 0.815),(0.305, 0.856),(0.305, 0.896),
                       (0.305, 0.936),(0.305, 0.977),(0.687, 0.815),
                       (0.687, 0.856),(0.687, 0.896),(0.687, 0.936),(0.687, 0.977)]}
+    
+    
+    
+# main text
+total_sentence = {
+    'start_sentence' : '소환사의협곡에오신것을환영합니다',
+    'minion_30_sentence' : '미니언생성까지초남았습니다',
+    'minion_sentence' : '미니언이생성 되었습니다',
+    'first_blood_sentence' : '선취점',
+    'kill_sentence0' : '님이님을처치했습니다',
+    'kill_sentence1' : '님이학살중입니다',
+    'kill_sentence2' : '님을도저히막을수없습니다',
+    'kill_sentence3' : '연속킬차단',
+    'kill_sentence4' : '님이미쳐날뛰고있습니다',
+    'kill_sentence5' :  '마지막적처치',
+    'kill_sentence6' : '더블킬',
+    'kill_sentence7' : '트리플킬',
+    'kill_sentence8' : '쿼드라킬',
+    'kill_sentence9' : '펜타킬',
+    'red_dragon_sentence' : '빨강팀이드래곤을처치했습니다',
+    'blue_dragon_sentence' : '파랑팀이드래곤을처치했습니다',
+    'blue_tower_sentence' : '빨강팀의포탑이파괴되었습니다',
+    'red_tower_sentence' : '파랑팀포탑이파괴되었습니다',
+    'blue_first_tower_sentence' : '파랑팀이첫번째포탑을파괴했습니다',
+    'red_first_tower_sentence' : '빨강팀이첫번째포탑을파괴했습니다',
+    #herald_sentence = ??
+    'herald_summon_sentence' : '팀이협곡의전령을소환했습니다',
+    'nashor_sentence' : '팀이내셔남작을처치했습니다',
+    #억제기
+    'inhibitor_sentence' : '님이팀억제기를파괴했습니다'
+    }
+
+text_str = ['start_sentence', 'minion_30_sentence', 'minion_sentence', 'first_blood_sentence',
+            'kill_sentence0', 'kill_sentence1', 'kill_sentence2', 'kill_sentence3', 'kill_sentence4',
+            'kill_sentence5', 'kill_sentence6', 'kill_sentence7', 'kill_sentence8', 'kill_sentence9',
+            'red_dragon_sentence', 'blue_dragon_sentence', 'blue_tower_sentence',
+            'red_tower_sentence', 'blue_first_tower_sentence', 'red_first_tower_sentence',
+            'herald_summon_sentence', 'nashor_sentence', 'inhibitor_sentence']

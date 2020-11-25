@@ -2,6 +2,7 @@ import sys
 import src.convert_ocr as convert_ocr
 import src.video_download as video_download
 
+
 if __name__ == "__main__":
     print("\n")
     print("#-------------------------------------------#")
@@ -9,7 +10,7 @@ if __name__ == "__main__":
     print("#   2. Process OCR from the youtube video   #")
     print("#-------------------------------------------#")
     print("Input a number and press enter to process: ", end='')
-    num = int(sys.stdin.readline())
+    num = 2
     print("\n")
 
     while True:
