@@ -10,7 +10,7 @@ if __name__ == "__main__":
     print("#   2. Process OCR from the youtube video   #")
     print("#-------------------------------------------#")
     print("Input a number and press enter to process: ", end='')
-    num = 2
+    num = int(sys.stdin.readline())
     print("\n")
 
     while True:

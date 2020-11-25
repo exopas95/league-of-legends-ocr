@@ -71,7 +71,7 @@ def run():
     # GCP Vision Intelligence API
     client = vision.ImageAnnotatorClient()
 
-    seconds = 2                                                                         # Set frequency 
+    seconds = 1                                                                         # Set frequency 
     for video in video_list:
         print(f"Start Processing: {video}")
         cam = cv2.VideoCapture(constants.VIDEO_PATH + "\\" + video)                     # Video Capture start
