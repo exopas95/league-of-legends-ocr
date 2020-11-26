@@ -186,7 +186,6 @@ def get_game_df(df) :
     timestamps = df.dropna(subset=['timestamp']).index                              # get index of rows with timestamp
     return df.loc[timestamps[0]:timestamps[-1]]                                     # Get remain of the start to the end of a game
 
-
 """ Get list of timestamp as string from input dataframe 
     - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
     - type df: dataframe
@@ -645,14 +644,12 @@ def get_kill(df) :
 
 
     killer, victim = [], []
-    for x in df.index :
+    for x in range(len(df.index)) :
         if 'blood' in df.sentence[x] :
             killer.append( 'IDK' )
             victim.append( 'IDK' )
         elif 'kill' in df.sentence[x] :
-            cleaned_x = ''.join(df.notice[x])
-            cleaned_x = re.sub('[^a-zA-Z가-힣]+', '', cleaned_x)
-            ki, vi = killer_victim_find(cleaned_x)
+            ki, vi = killer_victim_find(df.notice[x])
             killer.append(ki)
             victim.append(vi)
         else :
