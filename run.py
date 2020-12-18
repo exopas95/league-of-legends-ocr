@@ -10,9 +10,9 @@ if __name__ == "__main__":
     print("#   2. Process OCR from the youtube video   #")
     print("#-------------------------------------------#")
     print("Input a number and press enter to process: ", end='')
-    num = int(sys.stdin.readline())
+   # num = int(sys.stdin.readline())
     print("\n")
-
+    num=2
     while True:
         if num == 1:
             video_download.download_video_and_title()
