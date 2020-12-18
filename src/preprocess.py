@@ -687,28 +687,28 @@ def get_kill(df, user_dic) :
                 ki_2, vi_2 = np.nan, np.nan
                 
             try :
-                str(ki_0)
+                ki_0[0]
                 killer.append(ki_0)
             except :
                 try :
-                    str(ki_1)
+                    ki_1[0]
                     killer.append(ki_1)
                 except :
                     try :
-                        str(ki_2)
+                        ki_2[0]
                         killer.append(ki_2)
                     except :
                         killer.appned("IDK")
             try :
-                str(vi_0)
+                vi[0]
                 victim.append(vi_0)
             except :
                 try :
-                    str(vi_1)
+                    vi_1[0]
                     victim.append(vi_1)
                 except :
                     try :
-                        str(vi_2)
+                        vi_2[0]
                         victim.append(vi_2)
                     except :
                         victim.append("IDK")
