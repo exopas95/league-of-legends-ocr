@@ -71,7 +71,7 @@ def run():
     # GCP Vision Intelligence API
     client = vision.ImageAnnotatorClient()
 
-    seconds = 1                                                                         # Set frequency 
+    seconds = constants.SECONDS                                                         # Set frequency 
     for video in video_list:
         print(f"Start Processing: {video}")
         cam = cv2.VideoCapture(constants.VIDEO_PATH + "/" + video)                     # Video Capture start
@@ -116,7 +116,6 @@ def run():
         cam.release()                                                                   # Close cv2 video catpure
         cv2.destroyAllWindows()                                                         # Finish cv2
         df_result.T.to_csv(constants.CSV_PATH + "/raw_" + video + ".csv", encoding="utf8")                   
-        print("EUM: ", df_result.T)
         processed_df = preprocess.result_process(df_result.T)     
         processed_df.to_csv(constants.CSV_PATH + "/" + video + ".csv", encoding="utf8")# Create csv file
         print(f"Video processed and DataFrame created, Video Name: {video}")
