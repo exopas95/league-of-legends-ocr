@@ -74,7 +74,7 @@ def run():
     seconds = 1                                                                         # Set frequency 
     for video in video_list:
         print(f"Start Processing: {video}")
-        cam = cv2.VideoCapture(constants.VIDEO_PATH + "\\" + video)                     # Video Capture start
+        cam = cv2.VideoCapture(constants.VIDEO_PATH + "/" + video)                     # Video Capture start
         length = cam.get(cv2.CAP_PROP_FRAME_COUNT)                                      # Get the total number of the frames 
         fps = cam.get(cv2.CAP_PROP_FPS)                                                 # Get fps information of the video 
         multiplier = fps * seconds                                                      # Set multiplier
@@ -115,10 +115,10 @@ def run():
         pbar.close()                                                                    # Close tqdm process bar
         cam.release()                                                                   # Close cv2 video catpure
         cv2.destroyAllWindows()                                                         # Finish cv2
-        df_result.T.to_csv(constants.CSV_PATH + "\\raw_" + video + ".csv", encoding="utf8")                   
-
+        df_result.T.to_csv(constants.CSV_PATH + "/raw_" + video + ".csv", encoding="utf8")                   
+        print("EUM: ", df_result.T)
         processed_df = preprocess.result_process(df_result.T)     
-        processed_df.to_csv(constants.CSV_PATH + "\\" + video + ".csv", encoding="utf8")# Create csv file
+        processed_df.to_csv(constants.CSV_PATH + "/" + video + ".csv", encoding="utf8")# Create csv file
         print(f"Video processed and DataFrame created, Video Name: {video}")
 
     print("Completed")
