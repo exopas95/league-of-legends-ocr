@@ -700,7 +700,7 @@ def get_kill(df, user_dic) :
                     except :
                         killer.appned("IDK")
             try :
-                vi[0]
+                vi_0[0]
                 victim.append(vi_0)
             except :
                 try :
