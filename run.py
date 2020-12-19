@@ -23,4 +23,3 @@ if __name__ == "__main__":
         else:
             print("Please type a number from the menu: ", end="")
             num = int(sys.stdin.readline())
-            

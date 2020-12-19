@@ -4,6 +4,7 @@ import time
 import re
 import math
 import src.constants as constants
+import operator
 
 
 """ Returns [kill, death, assist] if input word can be decrypted else nan
@@ -532,41 +533,90 @@ def get_set_score(df, side) :
             l.append(np.nan)
     return make_monotonic(l, 5)
 
-def get_sentence(df) :
+""" Get Dictionary of User's ID from input dataframe
+    - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
+    - type df: dataframe
+"""
+def get_user_dic(df) :
+    str_set = constants.cols[0:10]          # str_set = ['blue_top_port', ... 'red_sup_port']
+    user_dic = {}                           # return dictionary
+    for line, i in zip(str_set,range(10)) :
+        BOW = {}                            # Bag of Words
+        for j in range(len(df)) :
+            try :
+                if df.iloc[j,i][1] in BOW :
+                    BOW[ df.iloc[j,i][1] ] += 1
+                else :
+                    BOW[ df.iloc[j,i][1] ] = 1
+            except :
+                continue
+        user_dic[line[:-5]] = max(BOW.items(), key=operator.itemgetter(1))[0]         # the most coomon value would be the id of user
+    return user_dic
 
+""" rough similarity calcaulator just compare all characters of x and y iterately
+    - param x, y : str which to calculate
+    - type x, y : str
+"""
+def calculator_similar(x,y) :
+    cnt = 0
+    try :
+        for x_char in x:
+            for y_char in y :
+                if x_char == y_char :
+                    cnt += 1
+    except :
+        cnt = 0
+    return cnt/len(y)
+
+""" rough similarity calcaulator for user_id just compare all characters of x and y iterately
+    - param x, y : str which to calculate
+    - type x, y : str
+"""
+def calculator_similar_id(x,y) :
+    cnt = 0
+    try :
+        for x_char, y_char in zip(x,y) :
+            if x_char == y_char :
+                cnt += 1
+    except :
+        cnt = 0
+    return cnt/len(y)
+
+
+""" Get DataFrame of classified notice from input dataframe
+    - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
+    - type df: dataframe
+"""
+def get_sentence(df) :
+    # make list to str such as
+    # ['AF', 'Mystic', '님', '이', '서', 'T', 'SOHwan', '님', '을', '처치', '했습니다', '!']
+    # to 'AFMystic님이서TSOHwan님을처치했습니다'
     def list_to_str(x) :
         result = ''.join(x)
-        result = re.sub('[^a-zA-Z가-힣]+', '', result)
+        result = re.sub('[^a-zA-Z가-힣0-9]+', '', result) # alphabet, number, korean is all things we are interested in
         if result :
             return result
         else :
             result = np.nan
         return result
-
+    # to dataframe, apply list_to_str ftn
     def notice_cleaner(df) :
         text = df.notice.apply(
             lambda x : list_to_str(x)
         )
         return text
 
-    def calculator_similar(x,y) :
-        cnt = 0
-        try :
-            for x_char in x:
-                for y_char in y :
-                    if x_char == y_char :
-                        cnt += 1
-        except :
-            cnt = 0
-        return cnt/len(y)
-
+    # judge the notice x is what about
+    # 0.65 is asymptotical value.
+    # usually when max similarity <= 0.5~ 0.6 it is just nuisance
+    # when max similarity >= 0.7 , it is worthwhile to consider
     def judge_sentence(x) :
         if max(x) <= 0.65 :
             return np.nan
         return x.astype(float).idxmax()
 
 
-    similar = pd.DataFrame(columns=['text']+constants.text_str)
+    similar = pd.DataFrame(columns=['text']+constants.text_str) # similarity matrix
     similar['text'] = notice_cleaner(df)
     
     for i in constants.text_str :
@@ -578,7 +628,7 @@ def get_sentence(df) :
     for i in range(len(similar)) :
         real_text.append(judge_sentence((similar.iloc[i,:][1:])))
 
-    similar['real_text'] = real_text
+    similar['real_text'] = real_text # this is what we want 
     
     sentence = similar.real_text.copy().fillna("0")
 
@@ -603,58 +653,65 @@ def get_sentence(df) :
 
     return sentence
 
-def get_kill(df) :
-    df['sentence'] = get_sentence(df)
-    def killer_victim_find(x) :
-        n_sub = 0
-        for char in x :
-            if (char == "임") | (char=='님') :
-                n_sub += 1
-        if n_sub == 0 :
-            return 'IDK', 'IDK'
-        
-        if n_sub == 1 :
-            if '님' in x :
-                return x[x.index("님")-1], 'IDK'
-            else :
-                return x[x.index('임')-1], 'IDK'
-        if n_sub >= 2 :
-            try :
-                a = x.index("님")
-            except :
-                a = 100
-            try :
-                b = x.index("임")
-            except :
-                b = 100
-            re1 = min(a,b)
-
-            rev = list(reversed(x))
-            try :
-                a = rev.index("님")
-            except :
-                a = 100
-            try :
-                b = rev.index("임")
-            except :
-                b = 100
-            re2 = min(a,b)
-            return x[re1-1], rev[re2+1]
-        return 'IDK', 'IDK'
-
-
+def get_kill(df, user_dic) :
+    df_use = df.copy()
+    df_use['sentence'] = get_sentence(df_use)
+    
+    def killer_victim_find(x):
+        killer_id, victim_id = np.nan, np.nan
+        for text in x :
+            for line in user_dic:
+                user_id = user_dic.get(line)
+                if calculator_similar_id(text, user_id) >= 0.75 :
+                    try :
+                        killer_id[0]
+                        victim_id = user_id
+                    except :
+                        killer_id = user_id
+        return killer_id, victim_id
 
     killer, victim = [], []
-    for x in df.index :
-        if 'blood' in df.sentence[x] :
+    for x in range(len(df_use.index)) :
+        if 'blood' in df_use.sentence[x] :
             killer.append( 'IDK' )
             victim.append( 'IDK' )
-        elif 'kill' in df.sentence[x] :
-            cleaned_x = ''.join(df.notice[x])
-            cleaned_x = re.sub('[^a-zA-Z가-힣]+', '', cleaned_x)
-            ki, vi = killer_victim_find(cleaned_x)
-            killer.append(ki)
-            victim.append(vi)
+        elif 'kill' in df_use.sentence[x] :
+            ki_0, vi_0 = killer_victim_find(df_use.notice[x])
+            try :
+                ki_1, vi_1 = killer_victim_find(df_use.notice[x+1])
+            except :
+                ki_1, vi_1 = np.nan, np.nan
+            try :
+                ki_2, vi_2 = killer_victim_find(df_use.notice[x+2])
+            except :
+                ki_2, vi_2 = np.nan, np.nan
+                
+            try :
+                ki_0[0]
+                killer.append(ki_0)
+            except :
+                try :
+                    ki_1[0]
+                    killer.append(ki_1)
+                except :
+                    try :
+                        ki_2[0]
+                        killer.append(ki_2)
+                    except :
+                        killer.appned("IDK")
+            try :
+                vi_0[0]
+                victim.append(vi_0)
+            except :
+                try :
+                    vi_1[0]
+                    victim.append(vi_1)
+                except :
+                    try :
+                        vi_2[0]
+                        victim.append(vi_2)
+                    except :
+                        victim.append("IDK")
         else :
             killer.append(np.nan)
             victim.append(np.nan)
@@ -689,6 +746,7 @@ def get_tower(df) :
 """
 def result_process(df) :
     game_df = get_game_df(df)
+    user_dic = get_user_dic(df)
     processed_df = pd.DataFrame({"video_timestamp": get_video_timestamp(game_df),
                                 'timestamp' : get_timestamp(game_df),
                                 'red_teamgold' : get_teamgold(game_df, 'red'),
@@ -787,8 +845,8 @@ def result_process(df) :
                                 'red_nashor_herald' : get_nashor_herald(game_df)[1],
                                 
                                 'sentence' : get_sentence(game_df),
-                                'killer' : get_kill(game_df)[0],
-                                'victim' : get_kill(game_df)[1],
+                                'killer' : get_kill(game_df, user_dic)[0],
+                                'victim' : get_kill(game_df, user_dic)[1],
                                 'tower' : get_tower(game_df),
                                
                                 'blue_set_score' : get_set_score(game_df,'blue'),
