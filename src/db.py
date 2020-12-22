@@ -17,7 +17,7 @@ def mysql_conn(engine):
     conn = engine.raw_connection()
     return conn
 
-def genarate_table_cols_sql(df):
+def generate_table_cols_sql(df):
     dmap = dtype_mapping()
     sql = ""
     headers = df.dtypes.index
