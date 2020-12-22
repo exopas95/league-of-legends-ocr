@@ -5,7 +5,7 @@ CURRENT_PATH = os.getcwd()
 VIDEO_PATH = CURRENT_PATH + "/data/video"
 IMAGE_PATH = CURRENT_PATH + "/data/img"
 CSV_PATH = CURRENT_PATH + "/data/csv"
-SECONDS = 1
+SECONDS = 600
 
 # API KEY and credential for GCP
 API_KEY = 'AIzaSyBFc0XjsSHhnDpW-N0qtZ3uS11iLxxxx_g'
