@@ -251,6 +251,6 @@ def run(video):
     
     row_total = pd.concat([row_static, row_team, row_player_end, row_player_under15], axis=1)
     row_total['video_name'] = video
-    row_total.set_index('video_name')
+    row_total = row_total.set_index('video_name')
 
     return row_total
