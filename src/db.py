@@ -37,7 +37,7 @@ def create_mysql_table_schema(df, conn, db, table):
 def insert_row(df):
     db_name = 'opgg_ocr'
     table_name = 'lck_2020'
-    engine = mysql_engine(user='root', password='', host='localhost', port='3306' database=db_name)
+    engine = mysql_engine(user='root', password='', host='localhost', port='3306', database=db_name)
     try :
         create_mysql_table_schema(df=df, conn=mysql_conn(engine), db=db_name, table=table_name)
     except :
