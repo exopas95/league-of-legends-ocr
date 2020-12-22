@@ -56,9 +56,9 @@ def get_static_indicator(raw_df,df):
             if 'set_score' in i:
                 static_dict[i] = int(raw_df[raw_df.blue_set_score.str.len()==8]['blue_set_score'].mode().iloc[0][5:6])
             elif 'drake' in i:
-                static_dict[i] = df['blue_drake'].dropna().tolist()
+                static_dict[i] = str(df['blue_drake'].dropna().tolist())
             elif 'nashor' in i:
-                static_dict[i] = df['blue_nashor_herald'].dropna().tolist().count('nashor')
+                static_dict[i] = df['blue_nashor_herald'].dropna().tolist().count('nashor'))
             elif 'summon' in i:
                 static_dict[i] = df['blue_nashor_herald'].dropna().tolist().count('summon_herald')
             else:
@@ -67,7 +67,7 @@ def get_static_indicator(raw_df,df):
             if 'set_score' in i:
                 static_dict[i] = int(raw_df[raw_df.red_set_score.str.len()==8]['red_set_score'].mode().iloc[0][2:3])
             elif 'drake' in i:
-                static_dict[i] = df['red_drake'].dropna().tolist()
+                static_dict[i] = str(df['red_drake'].dropna().tolist())
             elif 'nashor' in i:
                 static_dict[i] = df['red_nashor_herald'].dropna().tolist().count('nashor')
             elif 'summon' in i:
@@ -82,46 +82,17 @@ def get_static_indicator(raw_df,df):
 
 def team_indicator(df):
     new_dict=dict()
-    new_dict['first_blood_killer'] = []
-    new_dict['first_tower_team'] = []
-    new_dict['red_tower_score'] = []
-    new_dict['blue_tower_score'] = []
-#    new_dict['red_drake'] = []
-#    new_dict['blue_drake'] = []
-#    new_dict['red_herald_summon'] = []
-#    new_dict['blue_herald_summon'] = []
-#    new_dict['red_nashor'] = []
-#    new_dict['blue_nashor'] = []
-    new_dict['nashor_gold_diff'] = []
-    # new_dict['red_inhibitor'] = []
-    # new_dict['blue_inhibitor'] = []
-
-    first_blood = df[df.sentence=='first_blood_sentence'][['red_top_k','red_jug_k','red_mid_k','red_bot_k','red_sup_k','blue_top_k','blue_jug_k','blue_mid_k','blue_bot_k','blue_sup_k']]
-
-    for x in first_blood.columns:
-        if first_blood[x].values == [1.0]:
-            first_blood_killer = x
-        else :
-            first_blood_killer = np.nan
 
     nashor_df = df[df.sentence=='nashor_sentence'][['video_timestamp','blue_nashor_herald','red_nashor_herald','red_teamgold','blue_teamgold']]
     nashor_gold_diff = []
-
     for x in nashor_df[(nashor_df.red_nashor_herald=='nashor')|(nashor_df.blue_nashor_herald=='nashor')].index:
         temp_df = df.loc[x:x+180,['red_teamgold','blue_teamgold']].dropna()
         nashor_gold_diff.append(temp_df.iloc[-1,:].values[0] - temp_df.iloc[-1,:].values[1])
 
-    new_dict['first_blood_killer'] += [first_blood_killer]
-    new_dict['first_tower_team'] += [df[(df.sentence=='red_first_tower_sentence')|(df.sentence=='blue_first_tower_sentence')]['tower'].values[0]]
-    new_dict['red_tower_score'] += [len(df[(df.tower=='Red')|(df.tower=='Red_First')])]
-    new_dict['blue_tower_score'] += [len(df[(df.tower=='Blue')|(df.tower=='Blue_First')])]
-#    new_dict['red_drake'] += [len(df[df.sentence=='red_dragon_sentence'])]
-#    new_dict['blue_drake'] += [len(df[df.sentence=='blue_dragon_sentence'])]
-#    new_dict['red_herald_summon'] += [df[df.sentence=='herald_summon_sentence']['red_nashor_herald'].count()]
-#    new_dict['blue_herald_summon'] += [df[df.sentence=='herald_summon_sentence']['blue_nashor_herald'].count()]
-#    new_dict['red_nashor'] += [len(nashor_df[nashor_df.red_nashor_herald=='nashor'])]
-#    new_dict['blue_nashor'] += [len(nashor_df[nashor_df.blue_nashor_herald=='nashor'])]
-    new_dict['nashor_gold_diff'] += [np.array(nashor_gold_diff).round(2)]
+    new_dict['first_tower_team'] = str(df[(df.sentence=='red_first_tower_sentence')|(df.sentence=='blue_first_tower_sentence')]['tower'].values[0])
+    new_dict['red_tower_score'] = len(df[(df.tower=='Red')|(df.tower=='Red_First')])
+    new_dict['blue_tower_score'] = len(df[(df.tower=='Blue')|(df.tower=='Blue_First')])
+    new_dict['nashor_gold_diff'] = str(nashor_gold_diff)
 
     indicator_df = pd.DataFrame(new_dict, index=['game'])
 
@@ -177,7 +148,7 @@ def make_player_indicator_under15(df_use) :
                 try :
                     new_dict[f"{pos}_cs_gap_{m}m"]=int(df_use[df_use['timestamp']==(m*60-10)][f"{pos}_cs_gap"].values[0]+df_use[df_use['timestamp']==(m*60+10)][f"{pos}_cs_gap"].values[0])/2                
                 except :
-                    new_dict[f"{pos}_cs_gap_{m}m"]=np.nan
+                    new_dict[f"{pos}_cs_gap_{m}m"]= -99999
 
     for pos in positions :
         for m in minutes:
@@ -187,7 +158,7 @@ def make_player_indicator_under15(df_use) :
                 try :
                     new_dict[f"{pos}_level_gap_{m}m"]=int(df_use[df_use['timestamp']==(m*60-10)][f"{pos}_level_gap"].values[0]+df_use[df_use['timestamp']==(m*60+10)][f"{pos}_level_gap"].values[0])/2                
                 except :
-                    new_dict[f"{pos}_level_gap_{m}m"]=np.nan
+                    new_dict[f"{pos}_level_gap_{m}m"]=-99999
     
     return pd.DataFrame(new_dict, index=['game'])
 
@@ -216,7 +187,7 @@ def make_player_indicator_end(df_use) :
                 if d != 0 :
                     new_dict[f"{side}_{pos}_kda_final"] = (k+a)/d
                 else :
-                    new_dict[f"{side}_{pos}_kda_final"] = -1          # perfect kda -> -1
+                    new_dict[f"{side}_{pos}_kda_final"] = -1.          # perfect kda -> -1
             except :
                 new_dict[f"{side}_{pos}_kda_final"] = np.nan
 
@@ -230,11 +201,11 @@ def make_player_indicator_end(df_use) :
             if total_kill != 0 :
                 new_dict[f"{side}_{pos}_killparticip_final"] = (k+a)/total_kill
             else :
-                new_dict[f"{side}_{pos}_killparticip_final"] = 0            
+                new_dict[f"{side}_{pos}_killparticip_final"] = 0.            
             if total_death != 0 :
                 new_dict[f"{side}_{pos}_deathparticip_final"] = d/total_death
             else :
-                new_dict[f"{side}_{pos}_deathparticip_final"] = 0
+                new_dict[f"{side}_{pos}_deathparticip_final"] = 0.
 
     return pd.DataFrame(new_dict, index=['game'])
 
