@@ -77,7 +77,7 @@ def get_static_indicator(raw_df,df):
                 
     
     static_info_df_value = [[static_dict[i] for i in cols]]
-    static_info_df = pd.DataFrame(static_info_df_value, columns = cols)
+    static_info_df = pd.DataFrame(static_info_df_value, columns = cols, index=['game'])
     return static_info_df
 
 def team_indicator(df):
@@ -130,6 +130,7 @@ def team_indicator(df):
 
 
 def get_df_under15(df) :
+    df = df.copy()
     def to_time(x) :
         try :
             return datetime.datetime.strptime(x[0:5],'%M:%S').second + (datetime.datetime.strptime(x[0:5],'%M:%S').minute)*60
@@ -154,6 +155,7 @@ def get_df_under15(df) :
     return df_under15
 
 def get_df_end(df) :
+    df = df.copy()
     def to_time(x) :
         try :
             return datetime.datetime.strptime(x[0:5],'%M:%S').second + (datetime.datetime.strptime(x[0:5],'%M:%S').minute)*60
@@ -247,7 +249,8 @@ def run(video):
     row_player_end = make_player_indicator_end(get_df_end(df))
     row_player_under15 = make_player_indicator_end(get_df_under15(df))
     
-    row_total = pd.concat([row_static, row_team, row_player_end, row_player_under15])
+    row_total = pd.concat([row_static, row_team, row_player_end, row_player_under15], axis=1)
     row_total['video_name'] = video
+    row_total.set_index('video_name')
 
     return row_total
