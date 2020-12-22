@@ -58,7 +58,7 @@ def get_static_indicator(raw_df,df):
             elif 'drake' in i:
                 static_dict[i] = str(df['blue_drake'].dropna().tolist())
             elif 'nashor' in i:
-                static_dict[i] = df['blue_nashor_herald'].dropna().tolist().count('nashor'))
+                static_dict[i] = df['blue_nashor_herald'].dropna().tolist().count('nashor')
             elif 'summon' in i:
                 static_dict[i] = df['blue_nashor_herald'].dropna().tolist().count('summon_herald')
             else:
