@@ -4,7 +4,7 @@ import os
 import pandas as pd
 import src.constants as constants
 import src.preprocess as preprocess
-
+import src.stats as stats
 from src.bitwise_operation import bit_operation
 from google.cloud import vision
 from google.cloud.vision_v1 import types
@@ -119,6 +119,8 @@ def run():
 
         processed_df = preprocess.result_process(df_result.T)     
         processed_df.to_csv(constants.CSV_PATH + "\\" + video + ".csv", encoding="utf8")# Create csv file
+
+        stats_df = stats.run(video)
         print(f"Video processed and DataFrame created, Video Name: {video}")
 
     print("Completed")
