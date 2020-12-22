@@ -86,13 +86,12 @@ def team_indicator(df):
     new_dict['first_tower_team'] = []
     new_dict['red_tower_score'] = []
     new_dict['blue_tower_score'] = []
-    new_dict['red_drake'] = []
-    new_dict['blue_drake'] = []
-    new_dict['red_herald_summon'] = []
-    new_dict['blue_herald_summon'] = []
-    new_dict['red_nashor'] = []
-    new_dict['blue_nashor'] = []
-    new_dict['red_drake'] = []
+#    new_dict['red_drake'] = []
+#    new_dict['blue_drake'] = []
+#    new_dict['red_herald_summon'] = []
+#    new_dict['blue_herald_summon'] = []
+#    new_dict['red_nashor'] = []
+#    new_dict['blue_nashor'] = []
     new_dict['nashor_gold_diff'] = []
     # new_dict['red_inhibitor'] = []
     # new_dict['blue_inhibitor'] = []
@@ -116,18 +115,17 @@ def team_indicator(df):
     new_dict['first_tower_team'] += [df[(df.sentence=='red_first_tower_sentence')|(df.sentence=='blue_first_tower_sentence')]['tower'].values[0]]
     new_dict['red_tower_score'] += [len(df[(df.tower=='Red')|(df.tower=='Red_First')])]
     new_dict['blue_tower_score'] += [len(df[(df.tower=='Blue')|(df.tower=='Blue_First')])]
-    new_dict['red_drake'] += [len(df[df.sentence=='red_dragon_sentence'])]
-    new_dict['blue_drake'] += [len(df[df.sentence=='blue_dragon_sentence'])]
-    new_dict['red_herald_summon'] += [df[df.sentence=='herald_summon_sentence']['red_nashor_herald'].count()]
-    new_dict['blue_herald_summon'] += [df[df.sentence=='herald_summon_sentence']['blue_nashor_herald'].count()]
-    new_dict['red_nashor'] += [len(nashor_df[nashor_df.red_nashor_herald=='nashor'])]
-    new_dict['blue_nashor'] += [len(nashor_df[nashor_df.blue_nashor_herald=='nashor'])]
+#    new_dict['red_drake'] += [len(df[df.sentence=='red_dragon_sentence'])]
+#    new_dict['blue_drake'] += [len(df[df.sentence=='blue_dragon_sentence'])]
+#    new_dict['red_herald_summon'] += [df[df.sentence=='herald_summon_sentence']['red_nashor_herald'].count()]
+#    new_dict['blue_herald_summon'] += [df[df.sentence=='herald_summon_sentence']['blue_nashor_herald'].count()]
+#    new_dict['red_nashor'] += [len(nashor_df[nashor_df.red_nashor_herald=='nashor'])]
+#    new_dict['blue_nashor'] += [len(nashor_df[nashor_df.blue_nashor_herald=='nashor'])]
     new_dict['nashor_gold_diff'] += [np.array(nashor_gold_diff).round(2)]
 
     indicator_df = pd.DataFrame(new_dict, index=['game'])
 
     return indicator_df
-
 
 def get_df_under15(df) :
     df = df.copy()
@@ -247,7 +245,7 @@ def run(video):
     row_static = get_static_indicator(raw_df,df)
     row_team = team_indicator(df)
     row_player_end = make_player_indicator_end(get_df_end(df))
-    row_player_under15 = make_player_indicator_end(get_df_under15(df))
+    row_player_under15 = make_player_indicator_under15(get_df_under15(df))
     
     row_total = pd.concat([row_static, row_team, row_player_end, row_player_under15], axis=1)
     row_total['video_name'] = video
