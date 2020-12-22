@@ -173,6 +173,28 @@ def make_monotonic(a, ths) :
             a_mono.append(np.nan)
     return a_mono
 
+def adjust_level(a) :
+    l = []
+    temp_ten=0
+    temp_one=0
+    for b in a :
+        try :
+            ten = b//10
+            one = b%10
+            if one > temp_one :
+                temp_one = one
+            if (one==0) & (temp_one==9) :
+                temp_ten=1
+                temp_one=0
+            if temp_ten!=1 :
+                if one!=0 :
+                    ten=0
+            l.append(temp_ten*10+one)
+        except :
+            l.append(np.nan)
+    return l
+
+
 def get_video_timestamp(df):
     df['video_timestamp'] = df['video_timestamp'].apply(lambda x: np.nan if len(x)==0 else time.strftime("%M:%S", time.gmtime(float(x))))   # Replace empty list into nan
     return df["video_timestamp"]
@@ -693,11 +715,11 @@ def result_process(df) :
                                 'timestamp' : get_timestamp(game_df),
                                 'red_teamgold' : get_teamgold(game_df, 'red'),
 
-                                'red_top_level' : get_level(game_df, 'red', 'top'),
-                                'red_jug_level' : get_level(game_df, 'red', 'jug'),
-                                'red_mid_level' : get_level(game_df, 'red', 'mid'),
-                                'red_bot_level' : get_level(game_df, 'red', 'bot'),
-                                'red_sup_level' : get_level(game_df, 'red', 'sup'),
+                                'red_top_level' : adjust_level(get_level(game_df, 'red', 'top')),
+                                'red_jug_level' : adjust_level(get_level(game_df, 'red', 'jug')),
+                                'red_mid_level' : adjust_level(get_level(game_df, 'red', 'mid')),
+                                'red_bot_level' : adjust_level(get_level(game_df, 'red', 'bot')),
+                                'red_sup_level' : adjust_level(get_level(game_df, 'red', 'sup')),
 
                                 'red_top_cs' : get_cs(game_df, 'red', 'top'),
                                 'red_top_shutdown' : get_shutdown(game_df, 'red', 'top'),
@@ -730,11 +752,11 @@ def result_process(df) :
                                 'red_sup_a' : get_kda(game_df, 'red', 'sup', 'a'),
 
                                 'blue_teamgold' : get_teamgold(game_df, 'blue'),
-                                'blue_top_level' : get_level(game_df, 'blue', 'top'),
-                                'blue_jug_level' : get_level(game_df, 'blue', 'jug'),
-                                'blue_mid_level' : get_level(game_df, 'blue', 'mid'),
-                                'blue_bot_level' : get_level(game_df, 'blue', 'bot'),
-                                'blue_sup_level' : get_level(game_df, 'blue', 'sup'),
+                                'blue_top_level' : adjust_level(get_level(game_df, 'blue', 'top')),
+                                'blue_jug_level' : adjust_level(get_level(game_df, 'blue', 'jug')),
+                                'blue_mid_level' : adjust_level(get_level(game_df, 'blue', 'mid')),
+                                'blue_bot_level' : adjust_level(get_level(game_df, 'blue', 'bot')),
+                                'blue_sup_level' : adjust_level(get_level(game_df, 'blue', 'sup')),
 
                                 'blue_top_cs' : get_cs(game_df, 'blue', 'top'),
                                 'blue_top_shutdown' : get_shutdown(game_df, 'blue', 'top'),
