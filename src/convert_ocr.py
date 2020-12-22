@@ -2,10 +2,13 @@
 import cv2
 import os
 import pandas as pd
+
 import src.constants as constants
 import src.preprocess as preprocess
 import src.stats as stats
+import src.db as db
 from src.bitwise_operation import bit_operation
+
 from google.cloud import vision
 from google.cloud.vision_v1 import types
 from PIL import Image
@@ -121,6 +124,7 @@ def run():
         processed_df.to_csv(constants.CSV_PATH + "\\" + video + ".csv", encoding="utf8")# Create csv file
 
         stats_df = stats.run(video)
+        db.insert_row(stats_df)
         print(f"Video processed and DataFrame created, Video Name: {video}")
 
     print("Completed")
