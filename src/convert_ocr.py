@@ -117,7 +117,8 @@ def run():
 
         pbar.close()                                                                    # Close tqdm process bar
         cam.release()                                                                   # Close cv2 video catpure
-        cv2.destroyAllWindows()                                                         # Finish cv2
+        print(f"Video processed, Video Name: {video}")
+#        cv2.destroyAllWindows()                                                         # Finish cv2
         df_result.T.to_csv(constants.CSV_PATH + "/raw_" + video + ".csv", encoding="utf8")                   
 
         processed_df = preprocess.result_process(df_result.T)     
@@ -125,6 +126,6 @@ def run():
 
         stats_df = stats.run(video)
         db.insert_row(stats_df)
-        print(f"Video processed and DataFrame created, Video Name: {video}")
+        print(f"DataFrame created, Video Name: {video}")
 
     print("Completed")
