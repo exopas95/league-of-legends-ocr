@@ -90,7 +90,7 @@ def run():
         pbar = tqdm(total=int(length))                                                  # Set tqdm process bar
         
         # Process OCR on each frame
-        while(True):
+        while(cam.isOpened()):
             ret, frame = cam.read()                                                     # Get frame
             frameId = int(cam.get(1))                                                   # Get frame id of the current frame
 
