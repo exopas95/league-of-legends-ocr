@@ -210,8 +210,8 @@ def make_player_indicator_end(df_use) :
     return pd.DataFrame(new_dict, index=['game'])
 
 def run(video):
-    raw_df = pd.read_csv(constants.CSV_PATH + "\\raw_" + video + ".csv")
-    df = pd.read_csv(constants.CSV_PATH + "\\" + video + ".csv")
+    raw_df = pd.read_csv(constants.CSV_PATH + "/raw_" + video + ".csv")
+    df = pd.read_csv(constants.CSV_PATH + "/" + video + ".csv")
     
     row_static = get_static_indicator(raw_df,df)
     row_team = team_indicator(df)
