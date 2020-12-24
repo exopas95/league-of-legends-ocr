@@ -88,8 +88,10 @@ def team_indicator(df):
     for x in nashor_df[(nashor_df.red_nashor_herald=='nashor')|(nashor_df.blue_nashor_herald=='nashor')].index:
         temp_df = df.loc[x:x+180,['red_teamgold','blue_teamgold']].dropna()
         nashor_gold_diff.append(temp_df.iloc[-1,:].values[0] - temp_df.iloc[-1,:].values[1])
-
-    new_dict['first_tower_team'] = str(df[(df.sentence=='red_first_tower_sentence')|(df.sentence=='blue_first_tower_sentence')]['tower'].values[0])
+    try :
+        new_dict['first_tower_team'] = str(df[(df.sentence=='red_first_tower_sentence')|(df.sentence=='blue_first_tower_sentence')]['tower'].values[0])
+    except :
+        new_dict['first_tower_team'] = ""
     new_dict['red_tower_score'] = len(df[(df.tower=='Red')|(df.tower=='Red_First')])
     new_dict['blue_tower_score'] = len(df[(df.tower=='Blue')|(df.tower=='Blue_First')])
     new_dict['nashor_gold_diff'] = str(nashor_gold_diff)
