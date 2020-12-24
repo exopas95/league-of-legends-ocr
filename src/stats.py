@@ -37,16 +37,27 @@ def get_static_indicator(raw_df,df):
 
     for i in cols:
         if 'player' in i:
-            raw_df[i[:i.rfind('_')+1]+'port'] = raw_df[i[:i.rfind('_')+1]+'port'].apply(lambda x: x[1:-1].split(','))
+            try:
+                raw_df[i[:i.rfind('_')+1]+'port'] = raw_df[i[:i.rfind('_')+1]+'port'].apply(lambda x: x[1:-1].split(','))
+            except:
+                raw_df[i[:i.rfind('_')+1]+'port'] = np.nan
 
     for i in cols:
         if 'team' in i:
-            df_dict[i] = raw_df[i[:i.rfind('_')+1]+'top_port'].str[0].str[1:-1]
+            try:
+                df_dict[i] = raw_df[i[:i.rfind('_')+1]+'top_port'].str[0].str[1:-1]
+            except:
+                df_dict[i] = np.nan
         elif 'player' in i:
             if np.round(raw_df[i[:i.rfind('_')+1]+'port'].str.len().mean())<3:
-                df_dict[i] = raw_df[i[:i.rfind('_')+1]+'port'].str[0].str[1:-1] 
+                try:
+                    df_dict[i] = raw_df[i[:i.rfind('_')+1]+'port'].str[0].str[1:-1]
+                    df_dict[i] = np.nan
             else:
-                df_dict[i] = raw_df[i[:i.rfind('_')+1]+'port'].str[1].str[2:-1]   
+                try:
+                    df_dict[i] = raw_df[i[:i.rfind('_')+1]+'port'].str[1].str[2:-1]   
+                except:
+                    df_dict[i] = np.nan
     
     check_freq = pd.DataFrame(df_dict)
     static_dict = dict.fromkeys(cols,None)
@@ -54,9 +65,15 @@ def get_static_indicator(raw_df,df):
     for i in cols:
         if 'blue' in i:
             if 'set_score' in i:
-                static_dict[i] = int(raw_df[raw_df.blue_set_score.str.len()==8]['blue_set_score'].mode().iloc[0][5:6])
+                try:
+                    static_dict[i] = int(raw_df[raw_df.blue_set_score.str.len()==8]['blue_set_score'].mode().iloc[0][5:6])
+                except:
+                    static_dict[i] = np.nan
             elif 'drake' in i:
-                static_dict[i] = str(df['blue_drake'].dropna().tolist())
+                if len(df['blue_drake'].dropna().tolist())=0:
+                    static_dict[i] = np.nan
+                else:
+                    static_dict[i] = str(df['blue_drake'].dropna().tolist())
             elif 'nashor' in i:
                 static_dict[i] = df['blue_nashor_herald'].dropna().tolist().count('nashor')
             elif 'summon' in i:
@@ -65,9 +82,15 @@ def get_static_indicator(raw_df,df):
                 static_dict[i] = check_freq[i].mode().iloc[0]
         if 'red' in i:
             if 'set_score' in i:
-                static_dict[i] = int(raw_df[raw_df.red_set_score.str.len()==8]['red_set_score'].mode().iloc[0][2:3])
+                try:
+                    static_dict[i] = int(raw_df[raw_df.red_set_score.str.len()==8]['red_set_score'].mode().iloc[0][2:3])
+                except:
+                    static_dict[i] = np.nan
             elif 'drake' in i:
-                static_dict[i] = str(df['red_drake'].dropna().tolist())
+                if len(df['red_drake'].dropna().tolist())=0:
+                    static_dict[i] = np.nan
+                else:
+                    static_dict[i] = str(df['red_drake'].dropna().tolist())
             elif 'nashor' in i:
                 static_dict[i] = df['red_nashor_herald'].dropna().tolist().count('nashor')
             elif 'summon' in i:
@@ -89,6 +112,7 @@ def team_indicator(df):
         temp_df = df.loc[x:x+180,['red_teamgold','blue_teamgold']].dropna()
         nashor_gold_diff.append(temp_df.iloc[-1,:].values[0] - temp_df.iloc[-1,:].values[1])
 
+##check
     new_dict['first_tower_team'] = str(df[(df.sentence=='red_first_tower_sentence')|(df.sentence=='blue_first_tower_sentence')]['tower'].values[0])
     new_dict['red_tower_score'] = len(df[(df.tower=='Red')|(df.tower=='Red_First')])
     new_dict['blue_tower_score'] = len(df[(df.tower=='Blue')|(df.tower=='Blue_First')])
@@ -97,6 +121,7 @@ def team_indicator(df):
     indicator_df = pd.DataFrame(new_dict, index=['game'])
 
     return indicator_df
+
 
 def get_df_under15(df) :
     df = df.copy()
@@ -123,6 +148,36 @@ def get_df_under15(df) :
 
     return df_under15
 
+##check
+# def get_df_under15(df) :
+#     df = df.copy()
+#     def to_time(x) :
+#         try :
+#             return datetime.datetime.strptime(x[0:5],'%M:%S').second + (datetime.datetime.strptime(x[0:5],'%M:%S').minute)*60
+#         except :
+#             return np.nan
+
+#     df['timestamp'] = df.timestamp.apply(lambda x : to_time(x))
+
+#     positions=['top','jug','mid','bot','sup']
+#     for pos in positions :
+#         try:
+#             df[f"blue_{pos}_level"] = int(df[f"blue_{pos}_level"].values)
+#         except:
+#             df[f"blue_{pos}_level"] = 6 ##check
+#         df[f"red_{pos}_level"] = df[f"red_{pos}_level"].values
+
+#         df[f"{pos}_level_gap"] = df[f"blue_{pos}_level"] - df[f"red_{pos}_level"]
+#         df[f"{pos}_cs_gap"] = df[f"blue_{pos}_cs"] - df[f"red_{pos}_cs"]
+
+# #        df[f"{pos}_level_gap"] = df[f"{pos}_level_gap"].interpolate()
+#         df[f"{pos}_cs_gap"] = df[f"{pos}_cs_gap"].interpolate()
+        
+#     df_under15 = df[df["timestamp"]<=900]
+
+#     return df_under15
+
+
 def get_df_end(df) :
     df = df.copy()
     def to_time(x) :
@@ -135,7 +190,7 @@ def get_df_end(df) :
 
     df = df[-300:]
     return df
-
+##check
 def make_player_indicator_under15(df_use) :
     new_dict=dict()
     positions=['top','jug','mid','bot','sup']
@@ -161,7 +216,7 @@ def make_player_indicator_under15(df_use) :
                     new_dict[f"{pos}_level_gap_{m}m"]=-99999
     
     return pd.DataFrame(new_dict, index=['game'])
-
+##check
 def make_player_indicator_end(df_use) :
     new_dict=dict()
     positions=['top','jug','mid','bot','sup']
