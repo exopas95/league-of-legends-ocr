@@ -673,8 +673,8 @@ def get_kill(df, user_dic) :
     killer, victim = [], []
     for x in range(len(df_use.index)) :
         if 'blood' in df_use.sentence[x] :
-            killer.append( 'IDK' )
-            victim.append( 'IDK' )
+            killer.append( np.nan )
+            victim.append( np.nan )
         elif 'kill' in df_use.sentence[x] :
             ki_0, vi_0 = killer_victim_find(df_use.notice[x])
             try :
@@ -698,7 +698,7 @@ def get_kill(df, user_dic) :
                         ki_2[0]
                         killer.append(ki_2)
                     except :
-                        killer.appned("IDK")
+                        killer.appned( np.nan )
             try :
                 vi_0[0]
                 victim.append(vi_0)
@@ -711,7 +711,7 @@ def get_kill(df, user_dic) :
                         vi_2[0]
                         victim.append(vi_2)
                     except :
-                        victim.append("IDK")
+                        victim.append( np.nan )
         else :
             killer.append(np.nan)
             victim.append(np.nan)
