@@ -659,16 +659,24 @@ def get_kill(df, user_dic) :
     
     def killer_victim_find(x):
         killer_id, victim_id = np.nan, np.nan
+        cnt = 0
         for text in x :
             for line in user_dic:
                 user_id = user_dic.get(line)
                 if calculator_similar_id(text, user_id) >= 0.75 :
                     try :
-                        killer_id[0]
-                        victim_id = user_id
+                        if( type(user_id) == int or type(user_id) == str) and (cnt == 0) :
+                            killer_id = user_id 
+                            cnt += 1
+                        elif( type(user_id) == int or type(user_id) == str) and (cnt == 1) :
+                            victim_id = user_id
+                            cnt += 1
                     except :
-                        killer_id = user_id
-        return killer_id, victim_id
+                        continue
+        if cnt == 2 :
+            return killer_id, victim_id
+        else :
+            return np.nan, np.nan
 
     killer, victim = [], []
     for x in range(len(df_use.index)) :
@@ -687,31 +695,27 @@ def get_kill(df, user_dic) :
                 ki_2, vi_2 = np.nan, np.nan
                 
             try :
-                ki_0[0]
-                killer.append(ki_0)
-            except :
-                try :
-                    ki_1[0]
+                if ( type(ki_0) == int or type(ki_0) == str)  :
+                    killer.append(ki_0)
+                elif ( type(ki_1) == int or type(ki_1) == str) :
                     killer.append(ki_1)
-                except :
-                    try :
-                        ki_2[0]
-                        killer.append(ki_2)
-                    except :
-                        killer.appned( np.nan )
-            try :
-                vi_0[0]
-                victim.append(vi_0)
+                elif ( type(ki_2) == int or type(ki_2) == str) :
+                    killer.append(ki_2)
+                else :
+                    killer.append( np.nan )
             except :
-                try :
-                    vi_1[0]
+                killer.append( np.nan )
+            try :
+                if ( type(vi_0) == int or type(vi_0) == str)  :
+                    victim.append(vi_0)
+                elif ( type(vi_1) == int or type(vi_1) == str) :
                     victim.append(vi_1)
-                except :
-                    try :
-                        vi_2[0]
-                        victim.append(vi_2)
-                    except :
-                        victim.append( np.nan )
+                elif ( type(vi_2) == int or type(vi_2) == str) :
+                    victim.append(vi_2)
+                else :
+                    victim.append( np.nan )
+            except :
+                victim.append( np.nan )
         else :
             killer.append(np.nan)
             victim.append(np.nan)
