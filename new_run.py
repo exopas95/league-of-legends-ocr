@@ -21,10 +21,10 @@ if __name__ == "__main__":
                 video_download.download_video_and_title(youtube_url_list[i_url])
                 i_url += 1
             else :
-                isAllDownloadYet = True
+                isAllDownloadDone = True
         else :
             pool.map(convert_ocr.run, video_list)
 
-        if (isAllDownloadYet) & (len(video_list)==0) :
+        if (isAllDownloadDone) & (len(video_list)==0) :
             break;
             
