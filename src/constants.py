@@ -2,14 +2,14 @@ import os
 
 # directory path
 CURRENT_PATH = os.getcwd()
-VIDEO_PATH = CURRENT_PATH + "\\data\\video"
-IMAGE_PATH = CURRENT_PATH + "\\data\\img"
-CSV_PATH = CURRENT_PATH + "\\data\\csv"
+VIDEO_PATH = CURRENT_PATH + "/data/video"
+IMAGE_PATH = CURRENT_PATH + "/data/img"
+CSV_PATH = CURRENT_PATH + "/data/csv"
 
 # API KEY and credential for GCP
 API_KEY = 'AIzaSyBFc0XjsSHhnDpW-N0qtZ3uS11iLxxxx_g'
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = CURRENT_PATH + \
-    "\\op-gg-credential.json"
+    "/op-gg-credential.json"
 
 # Coordinates of the required information
 coord_dict = {'blue_top_port': (0.0, 0.03646, 0.11111, 0.18519),
