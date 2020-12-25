@@ -9,14 +9,13 @@ if __name__ == "__main__":
     youtube_url_list = f.read().splitlines()
     f.close()
 
-    video_list = os.listdir(constants.VIDEO_PATH)
-    
     pool = Pool(processes=2)
 
     i_url=0
     isAllDownloadDone = False
     while True :
-        if len(video_list) < 3 :
+        video_list = os.listdir(constants.VIDEO_PATH)
+        if len(video_list) < 2 :
             if i_url < len(youtube_url_list) :
                 video_download.download_video_and_title(youtube_url_list[i_url])
                 i_url += 1
