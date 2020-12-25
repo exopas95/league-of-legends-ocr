@@ -540,17 +540,54 @@ def get_set_score(df, side) :
 def get_user_dic(df) :
     str_set = constants.cols[0:10]          # str_set = ['blue_top_port', ... 'red_sup_port']
     user_dic = {}                           # return dictionary
+    team_dic = {}                           # team dictionary
     for line, i in zip(str_set,range(10)) :
-        BOW = {}                            # Bag of Words
+        BOW_0, BOW_1 = {}, {}                            # Bag of Words
         for j in range(len(df)) :
             try :
-                if df.iloc[j,i][1] in BOW :
-                    BOW[ df.iloc[j,i][1] ] += 1
+                if df.iloc[j,i][1] in BOW_0 :
+                    BOW_0[ df.iloc[j,i][1] ] += 1
                 else :
-                    BOW[ df.iloc[j,i][1] ] = 1
+                    BOW_0[ df.iloc[j,i][1] ] = 1
             except :
                 continue
-        user_dic[line[:-5]] = max(BOW.items(), key=operator.itemgetter(1))[0]         # the most coomon value would be the id of user
+            try :
+                if df.iloc[j,i][0] in BOW_1 :
+                    BOW_1[ df.iloc[j,i][0] ] += 1
+                else :
+                    BOW_1[ df.iloc[j,i][0] ] = 1
+            except :
+                continue
+        likely_0, likely_1 = max(BOW_0.items(), key=operator.itemgetter(1))[0], max(BOW_1.items(), key=operator.itemgetter(1))[0]
+        try :
+            if likely_0 in team_dic :
+                team_dic[ likely_0 ] += 1
+            else :
+                team_dic[ likely_0 ] = 1
+        except :
+            continue
+        try :
+            if likely_1 in team_dic :
+                team_dic[ likely_1 ] += 1
+            else :
+                team_dic[ likely_1 ] = 1
+        except :
+            continue
+        if i == 4 :
+            blue_team = max(team_dic.items(), key=operator.itemgetter(1))[0]
+            team_dic = {}
+        elif i == 9 :
+            red_team = max(team_dic.items(), key=operator.itemgetter(1))[0]
+        user_dic[ line[:-5]] = [max(BOW_0.items(), key=operator.itemgetter(1))[0], max(BOW_0.values()),
+                                max(BOW_1.items(), key=operator.itemgetter(1))[0], max(BOW_1.values())]
+    for line in str_set :
+        line = line[:-5]
+        if user_dic[ line ][1] > 800 :           # minimum count of id appearance in port
+            if user_dic[ line ][0] != blue_team and user_dic[ line ][0] != red_team :
+                user_dic[ line ] = user_dic[ line ][0]
+        elif user_dic[ line ][3] > 800 :
+            if user_dic[ line ][2] != blue_team and user_dic[ line ][0] != red_team :
+                user_dic[ line ] = user_dic[ line ][2]
     return user_dic
 
 """ rough similarity calcaulator just compare all characters of x and y iterately
