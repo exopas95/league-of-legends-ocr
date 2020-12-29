@@ -4,7 +4,7 @@ from PIL import Image
 
 # Additional mask work for better performance
 def text_image_attach(img): 
-    mask_image_num = cv2.imread(constants.IMAGE_PATH + '/img_num.png')
+    mask_image_num = cv2.imread(constants.IMAGE_PATH + '//img_num.png')
     height, width = mask_image_num.shape[:2]
     vec = constants.vec
 
@@ -28,7 +28,7 @@ def text_image_attach(img):
 # Masking frame
 def bit_operation(frame):
     # read mask image
-    m_image = cv2.imread(constants.IMAGE_PATH + '/img_mask.png')
+    m_image = cv2.imread(constants.IMAGE_PATH + '//img_mask.png')
 
     # convert colors to black and white
     image_to_gray = cv2.cvtColor(m_image, cv2.COLOR_BGR2GRAY)
