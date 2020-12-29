@@ -612,12 +612,13 @@ def calculator_similar(x,y) :
 def calculator_similar_id(x,y) :
     cnt = 0
     try :
-        for x_char, y_char in zip(x,y) :
-            if x_char == y_char :
-                cnt += 1
+        for x_char in x :
+            for y_char in y :
+                if x_char == y_char :
+                    cnt += 1
     except :
         cnt = 0
-    return cnt/len(y)
+    return cnt/len(x)
 
 
 """ Get DataFrame of classified notice from input dataframe
@@ -697,10 +698,19 @@ def get_kill(df, user_dic) :
     def killer_victim_find(x):
         killer_id, victim_id = np.nan, np.nan
         cnt = 0
-        for text in x :
+        tmp = x.copy()
+        for text in tmp :
+            max_val, max_str = 0, np.nan
             for line in user_dic:
                 user_id = user_dic.get(line)
-                if calculator_similar_id(text, user_id) >= 0.75 :
+                if ( calculator_similar_id(text, user_id) > max_val )  and ( calculator_similar_id(text, user_id) >= 0.75 ) :
+                    max_val = calculator_similar_id(text, user_id)
+                    max_str = user_id
+            if max_val >= 0.75 :
+                tmp[ tmp.index(text) ] = max_str
+            for line in user_dic :
+                user_id = user_dic.get(line)
+                if calculator_similar_id(text, user_id) >= 0.75  :
                     try :
                         if( type(user_id) == int or type(user_id) == str) and (cnt == 0) :
                             killer_id = user_id 
@@ -708,10 +718,27 @@ def get_kill(df, user_dic) :
                         elif( type(user_id) == int or type(user_id) == str) and (cnt == 1) :
                             victim_id = user_id
                             cnt += 1
+                        elif(type(user_id) == int or type(user_id) == str) and (cnt >= 2) :
+                            cnt += 1    
                     except :
                         continue
         if cnt == 2 :
             return killer_id, victim_id
+        elif cnt >= 3 :
+            try :
+                loc = []
+                cnt, check = 0, 0
+                for i in tmp :
+                    if i == '님' :
+                        loc.append(cnt-1)
+                        check += 1
+                    cnt += 1
+                if check == 2 :
+                    killer_id = tmp[loc[0]]
+                    victim_id = tmp[loc[1]]
+                    return killer_id, victim_id
+            except :
+                return np.nan, np.nan
         else :
             return np.nan, np.nan
 
