@@ -17,7 +17,7 @@ The code is compatible with python3 and the following dependencies are needed to
 - `tqdm == 4.51.0`
 - `pytube == 10.0.0`
 
-Please use the command below to install all the dependencies.
+Please use the command below to install all the dependencies.<br>
 ``` !pip install -r requirements.txt --use-feature=2020-resolver ```
 
 ## Installation
