@@ -4,6 +4,7 @@ import time
 import re
 import math
 import src.constants as constants
+import operator
 
 
 """ Returns [kill, death, assist] if input word can be decrypted else nan
@@ -184,7 +185,8 @@ def get_video_timestamp(df):
 def get_game_df(df) :
     df['timestamp'] = df['timestamp'].apply(lambda x: np.nan if len(x)==0 else x)   # Replace empty list into nan
     timestamps = df.dropna(subset=['timestamp']).index                              # get index of rows with timestamp
-    return df.loc[timestamps[0]:timestamps[-1]]                                     # Get remain of the start to the end of a game
+    game_df = df.loc[timestamps[0]:timestamps[-1]]                                     # Get remain of the start to the end of a game
+    return game_df.dropna(subset=['timestamp'])
 
 
 """ Get list of timestamp as string from input dataframe 
@@ -293,8 +295,11 @@ def get_kda(df, side, pos, kda) :
 def df_target(df, keyword):
     target_index = []
     for x in df.index:
-        if keyword in df.notice.loc[x]:
-            target_index.append(x)
+        try:
+            if keyword in df.notice.loc[x].lower():
+                target_index.append(x)
+        except:
+            pass
     return df.loc[target_index, :]
 
 def deduplicate(df):
@@ -318,7 +323,7 @@ def get_drake(df) :
         for y in drake_type:
             if (y in x) and (y not in seq) :
                 seq.append(y)
-    df_drake_pre = df_target(df, '드래곤')
+    df_drake_pre = df_target(df, 'dragon')
     df_drake = deduplicate(df_drake_pre)
     blue = []
     red = []
@@ -326,44 +331,80 @@ def get_drake(df) :
     red_dra_stack = 0
     has_error = ''
     total_stack = blue_dra_stack + red_dra_stack
-    for x in df.index :
-        if x in df_drake.index:
-            if '드래곤' in df.notice.loc[x] :
-                if '파랑' in df.notice.loc[x] :
-                    blue_dra_stack += 1
+    
+    if len(seq) > 0:
+        for x in df.index :
+            if x in df_drake.index:
+                if 'dragon' in df.notice.loc[x].lower() :
+                    if 'blue' in df.notice.loc[x].lower() :
+                        blue_dra_stack += 1
+                        red.append(np.nan)
+                        total_stack = blue_dra_stack + red_dra_stack
+                        if total_stack < 3:
+                            blue.append(has_error+seq[total_stack-1]+'DRAKE')
+                        elif total_stack >= 3:
+                            if (blue_dra_stack > 4) or (red_dra_stack >= 4):      #red got 4 dragon or blue already got 4 dragon 
+                                blue.append(has_error+'ELDER'+'DRAKE')
+                            else:
+                                blue.append(has_error+seq[2]+'DRAKE')
+                    elif 'red' in df.notice.loc[x].lower() :
+                        red_dra_stack += 1
+                        blue.append(np.nan)
+                        total_stack = blue_dra_stack + red_dra_stack
+                        if total_stack < 3:
+                            red.append(has_error+seq[total_stack-1]+'DRAKE')
+                        elif total_stack >= 3:
+                            if (red_dra_stack > 4) or (blue_dra_stack >= 4):
+                                red.append(has_error+'ELDER'+'DRAKE')
+                            else:
+                                red.append(has_error+seq[2]+'DRAKE')
+                    else:                                         #slain drake but don't know team
+                        red.append('UNKNOWN'+'DRAKE')
+                        blue.append('UNKNOWN'+'DRAKE')
+                        has_error = '[ERROR]'
+                else:
                     red.append(np.nan)
-                    total_stack = blue_dra_stack + red_dra_stack
-                    if total_stack < 3:
-                        blue.append(has_error+seq[total_stack-1]+'DRAKE')
-                        print(seq[total_stack-1])
-                    elif total_stack >= 3:
-                        if (blue_dra_stack > 4) or (red_dra_stack >= 4):      #red got 4 dragon or blue already got 4 dragon 
-                            blue.append(has_error+'ELDER'+'DRAKE')
-                        else:
-                            blue.append(has_error+seq[2]+'DRAKE')
-                            print(seq[2])
-                elif '빨강' in df.notice.loc[x] :
-                    red_dra_stack += 1
                     blue.append(np.nan)
-                    total_stack = blue_dra_stack + red_dra_stack
-                    if total_stack < 3:
-                        red.append(has_error+seq[total_stack-1]+'DRAKE')
-                    elif total_stack >= 3:
-                        if (red_dra_stack > 4) or (blue_dra_stack >= 4):
-                            red.append(has_error+'ELDER'+'DRAKE')
-                        else:
-                            red.append(has_error+seq[2]+'DRAKE')
-                else:                                         #slain drake but don't know team
-                    red.append('UNKNOWN'+'DRAKE')
-                    blue.append('UNKNOWN'+'DRAKE')
-                    has_error = '[ERROR]'
             else:
                 red.append(np.nan)
                 blue.append(np.nan)
-        else:
-            red.append(np.nan)
-            blue.append(np.nan)
-    return blue, red
+    else: 
+        for x in df.index :
+            if x in df_drake.index:
+                if 'dragon' in df.notice.loc[x].lower() :
+                    if 'blue' in df.notice.loc[x].lower() :
+                        blue_dra_stack += 1
+                        red.append(np.nan)
+                        total_stack = blue_dra_stack + red_dra_stack
+                        if total_stack < 3:
+                            blue.append('dragon')
+                        elif total_stack >= 3:
+                            if (blue_dra_stack > 4) or (red_dra_stack >= 4):      #red got 4 dragon or blue already got 4 dragon 
+                                blue.append(has_error+'ELDER'+'DRAKE')
+                            else:
+                                blue.append(has_error+'dragon')
+                    elif 'red' in df.notice.loc[x].lower() :
+                        red_dra_stack += 1
+                        blue.append(np.nan)
+                        total_stack = blue_dra_stack + red_dra_stack
+                        if total_stack < 3:
+                            red.append('dragon')
+                        elif total_stack >= 3:
+                            if (red_dra_stack > 4) or (blue_dra_stack >= 4):
+                                red.append(has_error+'ELDER'+'DRAKE')
+                            else:
+                                red.append(has_error+'dragon')
+                    else:                                         #slain drake but don't know team
+                        red.append('UNKNOWN'+'DRAKE')
+                        blue.append('UNKNOWN'+'DRAKE')
+                        has_error = '[ERROR]'
+                else:
+                    red.append(np.nan)
+                    blue.append(np.nan)
+            else:
+                red.append(np.nan)
+                blue.append(np.nan)   
+    return blue,red
 
 """ Get tuple of list of nashor/herald(blue, red) from input dataframe
     - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
@@ -372,28 +413,28 @@ def get_drake(df) :
 def get_nashor_herald(df) :
     blue = []
     red = []
-    df_nashor_pre = df_target(df, '내셔')
-    df_herald_pre = df_target(df, '전령')
+    df_nashor_pre = df_target(df, 'nashor')
+    df_herald_pre = df_target(df, 'herald')
     df_nashor = deduplicate(df_nashor_pre)
     df_herald = deduplicate(df_herald_pre)
     df_object = pd.concat([df_nashor, df_herald])
     for x in df.index :
         if x in df_object.index :
-            if '파랑' in df.notice.loc[x] :
-                if '남작' in df.notice.loc[x] :
+            if 'blue' in df.notice.loc[x].lower() :
+                if 'nashor' in df.notice.loc[x].lower() :
                     red.append(np.nan)
                     blue.append('nashor')
-                elif '전령' in df.notice.loc[x] :
+                elif 'herald' in df.notice.loc[x].lower() :
                     red.append(np.nan)
                     blue.append('summon_herald')
                 else:
                     red.append(np.nan)
                     blue.append(np.nan)
-            elif '빨강' in df.notice.loc[x] :
-                if '남작' in df.notice.loc[x] :
+            elif 'red' in df.notice.loc[x].lower() :
+                if 'nashor' in df.notice.loc[x].lower() :
                     blue.append(np.nan)
                     red.append('nashor')
-                elif '전령' in df.notice.loc[x] :
+                elif 'herald' in df.notice.loc[x].lower() :
                     blue.append(np.nan)
                     red.append('summon_herald')
                 else:
@@ -532,11 +573,92 @@ def get_set_score(df, side) :
             l.append(np.nan)
     return make_monotonic(l, 5)
 
+def get_user_dic(df) :
+    str_set = constants.cols[0:10]          # str_set = ['blue_top_port', ... 'red_sup_port']
+    user_dic = {}                           # return dictionary
+    team_dic = {}                           # team dictionary
+    for line, i in zip(str_set,range(10)) :
+        BOW_0, BOW_1 = {}, {}                            # Bag of Words
+        for j in range(len(df)) :
+            try :
+                if df.iloc[j,i][1] in BOW_0 :
+                    BOW_0[ df.iloc[j,i][1] ] += 1
+                else :
+                    BOW_0[ df.iloc[j,i][1] ] = 1
+            except :
+                continue
+            try :
+                if df.iloc[j,i][0] in BOW_1 :
+                    BOW_1[ df.iloc[j,i][0] ] += 1
+                else :
+                    BOW_1[ df.iloc[j,i][0] ] = 1
+            except :
+                continue
+        likely_0, likely_1 = max(BOW_0.items(), key=operator.itemgetter(1))[0], max(BOW_1.items(), key=operator.itemgetter(1))[0]
+        try :
+            if likely_0 in team_dic :
+                team_dic[ likely_0 ] += 1
+            else :
+                team_dic[ likely_0 ] = 1
+        except :
+            continue
+        try :
+            if likely_1 in team_dic :
+                team_dic[ likely_1 ] += 1
+            else :
+                team_dic[ likely_1 ] = 1
+        except :
+            continue
+        if i == 4 :
+            blue_team = max(team_dic.items(), key=operator.itemgetter(1))[0]
+            team_dic = {}
+        elif i == 9 :
+            red_team = max(team_dic.items(), key=operator.itemgetter(1))[0]
+        user_dic[ line[:-5]] = [max(BOW_0.items(), key=operator.itemgetter(1))[0], max(BOW_0.values()),
+                                max(BOW_1.items(), key=operator.itemgetter(1))[0], max(BOW_1.values())]
+    for line in str_set :
+        line = line[:-5]
+        if user_dic[ line ][1] > 800 :           # minimum count of id appearance in port
+            if user_dic[ line ][0] != blue_team and user_dic[ line ][0] != red_team :
+                user_dic[ line ] = user_dic[ line ][0]
+        elif user_dic[ line ][3] > 800 :
+            if user_dic[ line ][2] != blue_team and user_dic[ line ][0] != red_team :
+                user_dic[ line ] = user_dic[ line ][2]
+    return user_dic
+
+""" rough similarity calcaulator for user_id just compare all characters of x and y iterately
+    - param x, y : str which to calculate
+    - type x, y : str
+"""
+def calculator_similar_id(x,y) :
+    cnt = 0
+    try :
+        for x_char, y_char in zip(x,y) :
+            if x_char == y_char :
+                cnt += 1
+    except :
+        cnt = 0
+    return cnt/len(y)
+
+def calculator_similar(x,y) :
+    cnt = 0
+    try :
+        for x_char in x.split(' '):
+            if x_char.lower() in ['dragon','nashor','herald']:
+                return 0
+            for y_char in y.split(' ') :
+                y_char = re.sub('[^a-zA-Z가-힣0-9- ]+', '', y_char)
+                if x_char.lower() == y_char.lower() :
+                    cnt += 1
+        return cnt/len(y.split(' '))
+    except :
+        return 0
+
 def get_sentence(df) :
 
     def list_to_str(x) :
-        result = ''.join(x)
-        result = re.sub('[^a-zA-Z가-힣]+', '', result)
+        result = ' '.join(x)
+        result = re.sub('[^a-zA-Z가-힣0-9- ]+', '', result)
         if result :
             return result
         else :
@@ -547,21 +669,11 @@ def get_sentence(df) :
         text = df.notice.apply(
             lambda x : list_to_str(x)
         )
-        return text
+        return text            
 
-    def calculator_similar(x,y) :
-        cnt = 0
-        try :
-            for x_char in x:
-                for y_char in y :
-                    if x_char == y_char :
-                        cnt += 1
-        except :
-            cnt = 0
-        return cnt/len(y)
 
     def judge_sentence(x) :
-        if max(x) <= 0.65 :
+        if max(x) <= 0.9 :
             return np.nan
         return x.astype(float).idxmax()
 
@@ -574,11 +686,13 @@ def get_sentence(df) :
             lambda x : calculator_similar(x, constants.total_sentence[i])
         )
 
+
     real_text = []
     for i in range(len(similar)) :
         real_text.append(judge_sentence((similar.iloc[i,:][1:])))
 
     similar['real_text'] = real_text
+    
     
     sentence = similar.real_text.copy().fillna("0")
 
@@ -603,58 +717,70 @@ def get_sentence(df) :
 
     return sentence
 
-def get_kill(df) :
-    df['sentence'] = get_sentence(df)
-    def killer_victim_find(x) :
-        n_sub = 0
-        for char in x :
-            if (char == "임") | (char=='님') :
-                n_sub += 1
-        if n_sub == 0 :
-            return 'IDK', 'IDK'
-        
-        if n_sub == 1 :
-            if '님' in x :
-                return x[x.index("님")-1], 'IDK'
-            else :
-                return x[x.index('임')-1], 'IDK'
-        if n_sub >= 2 :
-            try :
-                a = x.index("님")
-            except :
-                a = 100
-            try :
-                b = x.index("임")
-            except :
-                b = 100
-            re1 = min(a,b)
 
-            rev = list(reversed(x))
-            try :
-                a = rev.index("님")
-            except :
-                a = 100
-            try :
-                b = rev.index("임")
-            except :
-                b = 100
-            re2 = min(a,b)
-            return x[re1-1], rev[re2+1]
-        return 'IDK', 'IDK'
-
-
+def get_kill(df, user_dic) :
+    df_use = df.copy()
+    df_use['sentence'] = get_sentence(df_use)
+    
+    def killer_victim_find(x):
+        killer_id, victim_id = np.nan, np.nan
+        cnt = 0
+        for text in x :
+            for line in user_dic:
+                user_id = user_dic.get(line)
+                if calculator_similar_id(text, user_id) >= 0.75 :
+                    try :
+                        if( type(user_id) == int or type(user_id) == str) and (cnt == 0) :
+                            killer_id = user_id 
+                            cnt += 1
+                        elif( type(user_id) == int or type(user_id) == str) and (cnt == 1) :
+                            victim_id = user_id
+                            cnt += 1
+                    except :
+                        continue
+        if cnt == 2 :
+            return killer_id, victim_id
+        else :
+            return np.nan, np.nan
 
     killer, victim = [], []
-    for x in df.index :
-        if 'blood' in df.sentence[x] :
-            killer.append( 'IDK' )
-            victim.append( 'IDK' )
-        elif 'kill' in df.sentence[x] :
-            cleaned_x = ''.join(df.notice[x])
-            cleaned_x = re.sub('[^a-zA-Z가-힣]+', '', cleaned_x)
-            ki, vi = killer_victim_find(cleaned_x)
-            killer.append(ki)
-            victim.append(vi)
+    for x in range(len(df_use.index)) :
+        if 'blood' in df_use.sentence[x] :
+            killer.append( np.nan )
+            victim.append( np.nan )
+        elif 'kill' in df_use.sentence[x] :
+            ki_0, vi_0 = killer_victim_find(df_use.notice[x])
+            try :
+                ki_1, vi_1 = killer_victim_find(df_use.notice[x+1])
+            except :
+                ki_1, vi_1 = np.nan, np.nan
+            try :
+                ki_2, vi_2 = killer_victim_find(df_use.notice[x+2])
+            except :
+                ki_2, vi_2 = np.nan, np.nan
+                
+            try :
+                if ( type(ki_0) == int or type(ki_0) == str)  :
+                    killer.append(ki_0)
+                elif ( type(ki_1) == int or type(ki_1) == str) :
+                    killer.append(ki_1)
+                elif ( type(ki_2) == int or type(ki_2) == str) :
+                    killer.append(ki_2)
+                else :
+                    killer.append( np.nan )
+            except :
+                killer.append( np.nan )
+            try :
+                if ( type(vi_0) == int or type(vi_0) == str)  :
+                    victim.append(vi_0)
+                elif ( type(vi_1) == int or type(vi_1) == str) :
+                    victim.append(vi_1)
+                elif ( type(vi_2) == int or type(vi_2) == str) :
+                    victim.append(vi_2)
+                else :
+                    victim.append( np.nan )
+            except :
+                victim.append( np.nan )
         else :
             killer.append(np.nan)
             victim.append(np.nan)
@@ -689,6 +815,7 @@ def get_tower(df) :
 """
 def result_process(df) :
     game_df = get_game_df(df)
+    user_dic = get_user_dic(df)
     processed_df = pd.DataFrame({"video_timestamp": get_video_timestamp(game_df),
                                 'timestamp' : get_timestamp(game_df),
                                 '200_teamgold' : get_teamgold(game_df, 'red'),
@@ -787,8 +914,8 @@ def result_process(df) :
                                 '200_nashor_herald' : get_nashor_herald(game_df)[1],
                                 
                                 'sentence' : get_sentence(game_df),
-                                'killer' : get_kill(game_df)[0],
-                                'victim' : get_kill(game_df)[1],
+                                'killer' : get_kill(game_df,user_dic)[0],
+                                'victim' : get_kill(game_df,user_dic)[1],
                                 'tower' : get_tower(game_df),
                                
                                 '100_set_score' : get_set_score(game_df,'blue'),

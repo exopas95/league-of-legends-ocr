@@ -2,10 +2,10 @@ import os
 
 # directory path
 CURRENT_PATH = os.getcwd()
-VIDEO_PATH = CURRENT_PATH + "/data/video"
-IMAGE_PATH = CURRENT_PATH + "/data/img"
-CSV_PATH = CURRENT_PATH + "/data/csv"
-SECONDS = 600
+VIDEO_PATH = CURRENT_PATH + "\\data\\video"
+IMAGE_PATH = CURRENT_PATH + "\\data\\img"
+CSV_PATH = CURRENT_PATH + "\\data\\csv"
+SECONDS = 1
 
 # API KEY and credential for GCP
 API_KEY = 'AIzaSyBFc0XjsSHhnDpW-N0qtZ3uS11iLxxxx_g'
@@ -110,36 +110,22 @@ vec = {
     
 # main text
 total_sentence = {
-    'start_sentence' : '소환사의협곡에오신것을환영합니다',
-    'minion_30_sentence' : '미니언생성까지초남았습니다',
-    'minion_sentence' : '미니언이생성 되었습니다',
-    'first_blood_sentence' : '선취점',
-    'kill_sentence0' : '님이님을처치했습니다',
-    'kill_sentence1' : '님이학살중입니다',
-    'kill_sentence2' : '님을도저히막을수없습니다',
-    'kill_sentence3' : '연속킬차단',
-    'kill_sentence4' : '님이미쳐날뛰고있습니다',
-    'kill_sentence5' :  '마지막적처치',
-    'kill_sentence6' : '더블킬',
-    'kill_sentence7' : '트리플킬',
-    'kill_sentence8' : '쿼드라킬',
-    'kill_sentence9' : '펜타킬',
-    'red_dragon_sentence' : '빨강팀이드래곤을처치했습니다',
-    'blue_dragon_sentence' : '파랑팀이드래곤을처치했습니다',
-    'blue_tower_sentence' : '빨강팀의포탑이파괴되었습니다',
-    'red_tower_sentence' : '파랑팀포탑이파괴되었습니다',
-    'blue_first_tower_sentence' : '파랑팀이첫번째포탑을파괴했습니다',
-    'red_first_tower_sentence' : '빨강팀이첫번째포탑을파괴했습니다',
-    #herald_sentence = ??
-    'herald_summon_sentence' : '팀이협곡의전령을소환했습니다',
-    'nashor_sentence' : '팀이내셔남작을처치했습니다',
-    #억제기
-    'inhibitor_sentence' : '님이팀억제기를파괴했습니다'
+    'start_sentence' : 'welcome to summoner\'s rift',
+    'minion_30_sentence' : 'thirty seconds until minions spawn',
+    'minion_sentence' : 'minions have spawned',
+    'kill_sentence' : 'has slain',
+    # 'red_dragon_sentence' : 'red team has slain the dragon',
+    # 'blue_dragon_sentence' : 'blue team has slain the dragon',
+    'blue_tower_sentence' : 'red turret destroyed',
+    'red_tower_sentence' : 'blue turret destroyed',
+    'blue_first_tower_sentence' : 'blue team destroyed the first turret',
+    'red_first_tower_sentence' : 'red team destroyed the first turret',
+    # 'herald_summon_sentence' : 'team has summoned the rift herald',
+    # 'nashor_sentence' : 'team has slain baron nashor'
     }
 
-text_str = ['start_sentence', 'minion_30_sentence', 'minion_sentence', 'first_blood_sentence',
-            'kill_sentence0', 'kill_sentence1', 'kill_sentence2', 'kill_sentence3', 'kill_sentence4',
-            'kill_sentence5', 'kill_sentence6', 'kill_sentence7', 'kill_sentence8', 'kill_sentence9',
-            'red_dragon_sentence', 'blue_dragon_sentence', 'blue_tower_sentence',
+text_str = ['start_sentence', 'minion_30_sentence', 'minion_sentence', 
+            'kill_sentence', 
+             'blue_tower_sentence',
             'red_tower_sentence', 'blue_first_tower_sentence', 'red_first_tower_sentence',
-            'herald_summon_sentence', 'nashor_sentence', 'inhibitor_sentence']
+           ]
