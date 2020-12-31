@@ -4,7 +4,7 @@ OP.GG
 ## Introduction
 This repository contains code for Optical Character Recognition on League of Legends game video.
 The purpose of this project is as follows:
-- Extract meaningful text values such as gold, level, KDA from League of Legends game video using GCP OCR API
+- Extract meaningful text values such as *gold*, *level*, *KDA* from League of Legends game video using GCP OCR API
 - Develop various scenarios on what analysis can be done based on the extracted values.
 
 ## Dependencies
@@ -24,14 +24,14 @@ Please use the command below to install all the dependencies.<br>
 1. Clone the repository:
 ``` https://github.com/nwojke/deep_sort.git ```
 
-2. Create credential.json file from GCP 
+2. Create `credential.json` file from GCP 
     If you are a member of the project, please create the credential file from OPGG service account
-    - you can create the file from GCP - IAM & ADMIN - Service Accounts - Actions - Create Key<br>
+    > you can create the file from GCP - IAM & ADMIN - Service Accounts - Actions - Create Key<br>
 
     If you are not a member of the project, please create your credential file 
     according to the instruction of Google Cloud Vision API<br>
 
-    After your done with creating credential file, please loacte the file in the same path as the run.py file
+    After your done with creating credential file, please loacte the file in the same path as the `run.py` file
 
 ## Modify Path
 Please modify the following path of the constnats.py file that matches your OS.
