@@ -26,7 +26,7 @@ Please use the command below to install all the dependencies.<br>
 
 2. Create credential.json file from GCP 
 If you are a member of the project, please create the credential file from OPGG service account
-> you can create the file from GCP - IAM & ADMIN - Service Accounts - Actions - Create Key<br>
+- you can create the file from GCP - IAM & ADMIN - Service Accounts - Actions - Create Key<br>
 
 If you are not a member of the project, please create your credential file 
 according to the instruction of Google Cloud Vision API<br>
