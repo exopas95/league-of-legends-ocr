@@ -582,12 +582,14 @@ def get_user_dic(df) :
                                 max(BOW_1.items(), key=operator.itemgetter(1))[0], max(BOW_1.values())]
     for line in str_set :
         line = line[:-5]
-        if user_dic[ line ][1] > 800 :           # minimum count of id appearance in port
+        if user_dic[ line ][1] > 700 :           # minimum count of id appearance in port
             if user_dic[ line ][0] != blue_team and user_dic[ line ][0] != red_team :
                 user_dic[ line ] = user_dic[ line ][0]
-        elif user_dic[ line ][3] > 800 :
+        elif user_dic[ line ][3] > 700 :
             if user_dic[ line ][2] != blue_team and user_dic[ line ][0] != red_team :
                 user_dic[ line ] = user_dic[ line ][2]
+        else :
+            user_dic[ line ] = np.nan
     return user_dic
 
 """ rough similarity calcaulator just compare all characters of x and y iterately
@@ -748,7 +750,10 @@ def get_kill(df, user_dic) :
             killer.append( np.nan )
             victim.append( np.nan )
         elif 'kill' in df_use.sentence[x] :
-            ki_0, vi_0 = killer_victim_find(df_use.notice[x])
+            try :
+                ki_0, vi_0 = killer_victim_find(df_use.notice[x])
+            except :
+                ki_0, vi_0 = np.nan, np.nan
             try :
                 ki_1, vi_1 = killer_victim_find(df_use.notice[x+1])
             except :
