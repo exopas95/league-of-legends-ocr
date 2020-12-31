@@ -184,7 +184,8 @@ def get_video_timestamp(df):
 def get_game_df(df) :
     df['timestamp'] = df['timestamp'].apply(lambda x: np.nan if len(x)==0 else x)   # Replace empty list into nan
     timestamps = df.dropna(subset=['timestamp']).index                              # get index of rows with timestamp
-    return df.loc[timestamps[0]:timestamps[-1]]                                     # Get remain of the start to the end of a game
+    game_df = df.loc[timestamps[0]:timestamps[-1]]                                     # Get remain of the start to the end of a game
+    return game_df.dropna(subset=['timestamp'])                                    # remove replay
 
 
 """ Get list of timestamp as string from input dataframe 
