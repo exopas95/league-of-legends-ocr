@@ -119,10 +119,11 @@ def run(video):
     os.remove(constants.VIDEO_PATH + "/" + video)
     
     df_result.T.to_csv(constants.CSV_PATH + "/raw_" + video + ".csv", encoding="utf8")                   
-
-    processed_df = preprocess.result_process(df_result.T)     
-    processed_df.to_csv(constants.CSV_PATH + "/" + video + ".csv", encoding="utf8")# Create csv file
-
-    stats_df = stats.run(video)
-    db.insert_row(stats_df)
+    try :
+        processed_df = preprocess.result_process(df_result.T)     
+        processed_df.to_csv(constants.CSV_PATH + "/" + video + ".csv", encoding="utf8")# Create csv file
+    except :
+        pass
+#    stats_df = stats.run(video)
+#    db.insert_row(stats_df)
     print(f"DataFrame created, Video Name: {video}")
