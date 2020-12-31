@@ -25,13 +25,13 @@ Please use the command below to install all the dependencies.<br>
 ``` https://github.com/nwojke/deep_sort.git ```
 
 2. Create credential.json file from GCP 
-If you are a member of the project, please create the credential file from OPGG service account
-- you can create the file from GCP - IAM & ADMIN - Service Accounts - Actions - Create Key<br>
+    If you are a member of the project, please create the credential file from OPGG service account
+    - you can create the file from GCP - IAM & ADMIN - Service Accounts - Actions - Create Key<br>
 
-If you are not a member of the project, please create your credential file 
-according to the instruction of Google Cloud Vision API<br>
+    If you are not a member of the project, please create your credential file 
+    according to the instruction of Google Cloud Vision API<br>
 
-After your done with creating credential file, please loacte the file in the same path as the run.py file
+    After your done with creating credential file, please loacte the file in the same path as the run.py file
 
 ## Modify Path
 Please modify the following path of the constnats.py file that matches your OS.
