@@ -40,12 +40,12 @@ Please modify the following path of the constnats.py file that matches your OS.
 - `CSV_PATH`
 
 ## Download Game Video from Youtube
-First, modify youtube_list.txt file and add the url you want to download <br>
-Run the program by using the following command and press 1
+1. modify youtube_list.txt file and add the url you want to download <br>
+2. Run the program by using the following command and press 1<br>
 ``` python run.py ```
 
 ## Generating OCR Tracker
-Run the program by using the following command and press 2
+1. Run the program by using the following command and press 2<br>
 ``` python run.py ```
 
 ## Highlevel overview of source files
