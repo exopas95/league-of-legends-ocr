@@ -114,14 +114,10 @@ total_sentence = {
     'minion_30_sentence' : 'thirty seconds until minions spawn',
     'minion_sentence' : 'minions have spawned',
     'kill_sentence' : 'has slain',
-    # 'red_dragon_sentence' : 'red team has slain the dragon',
-    # 'blue_dragon_sentence' : 'blue team has slain the dragon',
     'blue_tower_sentence' : 'red turret destroyed',
     'red_tower_sentence' : 'blue turret destroyed',
     'blue_first_tower_sentence' : 'blue team destroyed the first turret',
-    'red_first_tower_sentence' : 'red team destroyed the first turret',
-    # 'herald_summon_sentence' : 'team has summoned the rift herald',
-    # 'nashor_sentence' : 'team has slain baron nashor'
+    'red_first_tower_sentence' : 'red team destroyed the first turret'
     }
 
 text_str = ['start_sentence', 'minion_30_sentence', 'minion_sentence', 

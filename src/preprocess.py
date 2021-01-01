@@ -292,14 +292,15 @@ def get_kda(df, side, pos, kda) :
     - type data: dataframe
 """
 
-def df_target(df, keyword):
+def df_target(df, keywords):
     target_index = []
-    for x in df.index:
-        try:
-            if keyword in df.notice.loc[x].lower():
-                target_index.append(x)
-        except:
-            pass
+    for keyword in keywords:
+        for x in df.index:
+            try:
+                if keyword in ' '.join(df.notice.loc[x]).lower():
+                    target_index.append(x)
+            except:
+                pass
     return df.loc[target_index, :]
 
 def deduplicate(df):
@@ -323,7 +324,7 @@ def get_drake(df) :
         for y in drake_type:
             if (y in x) and (y not in seq) :
                 seq.append(y)
-    df_drake_pre = df_target(df, 'dragon')
+    df_drake_pre = df_target(df, ['드래곤','dragon'])
     df_drake = deduplicate(df_drake_pre)
     blue = []
     red = []
@@ -335,8 +336,8 @@ def get_drake(df) :
     if len(seq) > 0:
         for x in df.index :
             if x in df_drake.index:
-                if 'dragon' in df.notice.loc[x].lower() :
-                    if 'blue' in df.notice.loc[x].lower() :
+                if '드래곤' in ' '.join(df.notice.loc[x]).lower() or 'dragon' in ' '.join(df.notice.loc[x]).lower() :
+                    if '파랑' in ' '.join(df.notice.loc[x]).lower() or 'blue' in ' '.join(df.notice.loc[x]).lower() :
                         blue_dra_stack += 1
                         red.append(np.nan)
                         total_stack = blue_dra_stack + red_dra_stack
@@ -347,7 +348,7 @@ def get_drake(df) :
                                 blue.append(has_error+'ELDER'+'DRAKE')
                             else:
                                 blue.append(has_error+seq[2]+'DRAKE')
-                    elif 'red' in df.notice.loc[x].lower() :
+                    elif '빨강' in ' '.join(df.notice.loc[x]).lower() or 'red' in ' '.join(df.notice.loc[x]).lower() :
                         red_dra_stack += 1
                         blue.append(np.nan)
                         total_stack = blue_dra_stack + red_dra_stack
@@ -371,32 +372,32 @@ def get_drake(df) :
     else: 
         for x in df.index :
             if x in df_drake.index:
-                if 'dragon' in df.notice.loc[x].lower() :
-                    if 'blue' in df.notice.loc[x].lower() :
+                if '드래곤' in ' '.join(df.notice.loc[x]).lower() or 'dragon' in ' '.join(df.notice.loc[x]).lower() :
+                    if '파랑' in ' '.join(df.notice.loc[x]).lower() or 'blue' in ' '.join(df.notice.loc[x]).lower() :
                         blue_dra_stack += 1
                         red.append(np.nan)
                         total_stack = blue_dra_stack + red_dra_stack
                         if total_stack < 3:
-                            blue.append('dragon')
+                            blue.append('DRAKE')
                         elif total_stack >= 3:
                             if (blue_dra_stack > 4) or (red_dra_stack >= 4):      #red got 4 dragon or blue already got 4 dragon 
                                 blue.append(has_error+'ELDER'+'DRAKE')
                             else:
-                                blue.append(has_error+'dragon')
-                    elif 'red' in df.notice.loc[x].lower() :
+                                blue.append(has_error+'DRAKE')
+                    elif '빨강' in ' '.join(df.notice.loc[x]).lower() or 'red' in ' '.join(df.notice.loc[x]).lower() :
                         red_dra_stack += 1
                         blue.append(np.nan)
                         total_stack = blue_dra_stack + red_dra_stack
                         if total_stack < 3:
-                            red.append('dragon')
+                            red.append('DRAKE')
                         elif total_stack >= 3:
                             if (red_dra_stack > 4) or (blue_dra_stack >= 4):
-                                red.append(has_error+'ELDER'+'DRAKE')
+                                red.append(has_error+'ELDER'+' DRAKE')
                             else:
-                                red.append(has_error+'dragon')
+                                red.append(has_error+'DRAKE')
                     else:                                         #slain drake but don't know team
-                        red.append('UNKNOWN'+'DRAKE')
-                        blue.append('UNKNOWN'+'DRAKE')
+                        red.append('UNKNOWN'+' DRAKE')
+                        blue.append('UNKNOWN'+' DRAKE')
                         has_error = '[ERROR]'
                 else:
                     red.append(np.nan)
@@ -413,28 +414,28 @@ def get_drake(df) :
 def get_nashor_herald(df) :
     blue = []
     red = []
-    df_nashor_pre = df_target(df, 'nashor')
-    df_herald_pre = df_target(df, 'herald')
+    df_nashor_pre = df_target(df, ['내셔','nashor'])
+    df_herald_pre = df_target(df, ['전령','herald'])
     df_nashor = deduplicate(df_nashor_pre)
     df_herald = deduplicate(df_herald_pre)
     df_object = pd.concat([df_nashor, df_herald])
     for x in df.index :
         if x in df_object.index :
-            if 'blue' in df.notice.loc[x].lower() :
-                if 'nashor' in df.notice.loc[x].lower() :
+            if '파랑' in ' '.join(df.notice.loc[x]).lower() or 'blue' in ' '.join(df.notice.loc[x]).lower() :
+                if '남작' in ' '.join(df.notice.loc[x]).lower() or 'nashor' in ' '.join(df.notice.loc[x]).lower() :
                     red.append(np.nan)
                     blue.append('nashor')
-                elif 'herald' in df.notice.loc[x].lower() :
+                elif '전령' in ' '.join(df.notice.loc[x]).lower() or 'herald' in ' '.join(df.notice.loc[x]).lower() :
                     red.append(np.nan)
                     blue.append('summon_herald')
                 else:
                     red.append(np.nan)
                     blue.append(np.nan)
-            elif 'red' in df.notice.loc[x].lower() :
-                if 'nashor' in df.notice.loc[x].lower() :
+            elif '빨강' in ' '.join(df.notice.loc[x]).lower() or 'red' in ' '.join(df.notice.loc[x]).lower() :
+                if '남작' in ' '.join(df.notice.loc[x]).lower() or 'nashor' in ' '.join(df.notice.loc[x]).lower() :
                     blue.append(np.nan)
                     red.append('nashor')
-                elif 'herald' in df.notice.loc[x].lower() :
+                elif '전령' in ' '.join(df.notice.loc[x]).lower() or 'herald' in ' '.join(df.notice.loc[x]).lower() :
                     blue.append(np.nan)
                     red.append('summon_herald')
                 else:
