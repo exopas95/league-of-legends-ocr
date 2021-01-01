@@ -185,8 +185,8 @@ def get_video_timestamp(df):
 def get_game_df(df) :
     df['timestamp'] = df['timestamp'].apply(lambda x: np.nan if len(x)==0 else x)   # Replace empty list into nan
     timestamps = df.dropna(subset=['timestamp']).index                              # get index of rows with timestamp
-    return df.loc[timestamps[0]:timestamps[-1]]                                     # Get remain of the start to the end of a game
-
+    game_df = df.loc[timestamps[0]:timestamps[-1]]                                     # Get remain of the start to the end of a game
+    return game_df.dropna(subset=['timestamp'])                                    # remove replay
 
 """ Get list of timestamp as string from input dataframe 
     - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
@@ -620,7 +620,7 @@ def calculator_similar_id(x,y) :
                     cnt += 1
     except :
         cnt = 0
-    return cnt/len(x)
+    return cnt/len(y)
 
 
 """ Get DataFrame of classified notice from input dataframe
@@ -699,9 +699,11 @@ def get_kill(df, user_dic) :
     
     def killer_victim_find(x):
         killer_id, victim_id = np.nan, np.nan
-        cnt = 0
+        cnt, nim_cnt = 0, 0
         tmp = x.copy()
         for text in tmp :
+            if text == '님' :
+                nim_cnt += 1
             max_val, max_str = 0, np.nan
             for line in user_dic:
                 user_id = user_dic.get(line)
@@ -712,7 +714,7 @@ def get_kill(df, user_dic) :
                 tmp[ tmp.index(text) ] = max_str
             for line in user_dic :
                 user_id = user_dic.get(line)
-                if calculator_similar_id(text, user_id) >= 0.75  :
+                if (calculator_similar_id(text, user_id) == max_val) and (max_val >= 0.75)  :
                     try :
                         if( type(user_id) == int or type(user_id) == str) and (cnt == 0) :
                             killer_id = user_id 
@@ -726,7 +728,7 @@ def get_kill(df, user_dic) :
                         continue
         if cnt == 2 :
             return killer_id, victim_id
-        elif cnt >= 3 :
+        elif nim_cnt == 2 :
             try :
                 loc = []
                 cnt, check = 0, 0
