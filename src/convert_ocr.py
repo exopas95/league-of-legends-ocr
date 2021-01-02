@@ -115,7 +115,7 @@ def run():
         pbar.close()                                                                    # Close tqdm process bar
         cam.release()                                                                   # Close cv2 video catpure
         cv2.destroyAllWindows()                                                         # Finish cv2
-        df_result.T.to_csv(constants.CSV_PATH + "/raw_" + video + ".csv", encoding="utf8")                   
+        df_result.T.to_csv(constants.CSV_PATH + "/raw_" + video + ".csv", encoding="utf8")                      
         processed_df = preprocess.result_process(df_result.T)     
         processed_df.to_csv(constants.CSV_PATH + "/" + video + ".csv", encoding="utf8")# Create csv file
         print(f"Video processed and DataFrame created, Video Name: {video}")

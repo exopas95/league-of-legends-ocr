@@ -121,7 +121,6 @@ total_sentence = {
     }
 
 text_str = ['start_sentence', 'minion_30_sentence', 'minion_sentence', 
-            'kill_sentence', 
-             'blue_tower_sentence',
-            'red_tower_sentence', 'blue_first_tower_sentence', 'red_first_tower_sentence',
+            'kill_sentence', 'blue_tower_sentence', 'red_tower_sentence', 
+            'blue_first_tower_sentence', 'red_first_tower_sentence',
            ]

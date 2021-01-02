@@ -7,6 +7,9 @@ import src.constants as constants
 import operator
 
 
+def language(df):
+    
+
 """ Returns [kill, death, assist] if input word can be decrypted else nan
     - param x: Input word will define which is kda or not
     - type x: str
@@ -188,6 +191,32 @@ def get_game_df(df) :
     game_df = df.loc[timestamps[0]:timestamps[-1]]                                     # Get remain of the start to the end of a game
     return game_df.dropna(subset=['timestamp'])
 
+""" Get first 1 minute df from minion notice to figure out language of game
+    - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
+    - type df: dataframe
+"""
+def get_start_df(df) :
+    game_df = get_game_df(df)      
+    game_df['timestamp'] = game_df['timestamp'].apply(' '.join)
+    game_df['timestamp'] = game_df['timestamp'].str.replace(':','.')
+    game_df['timestamp'] = game_df['timestamp'].str.replace('\'','')
+    game_df['timestamp'] = game_df['timestamp'].str.replace('[^0-9.]+', '',regex=True)
+    game_df['timestamp'] = game_df['timestamp'].apply(lambda x: np.nan if x=='' else x)
+    game_df['timestamp'] = game_df.timestamp.astype(float).fillna(0.0)
+    start_index = game_df.index[(game_df['timestamp']>=0.35) & (game_df['timestamp']<=1.35)].tolist()
+    return game_df.loc[min(start_index):max(start_index)]
+
+""" Figure out language of the game
+    - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
+    - type df: dataframe
+"""
+def is_korean(df):
+    start_df = get_start_df(df)
+    is_korean = True
+    for x in df.index:
+        if 'minions' in ' '.join(df.notice.loc[x]).lower():
+            is_korean = False
+    return is_korean
 
 """ Get list of timestamp as string from input dataframe 
     - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
