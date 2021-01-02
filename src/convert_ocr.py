@@ -75,8 +75,8 @@ def detect_text(content, w, h, client):
 def run():
     # GCP Vision Intelligence API
     client = vision.ImageAnnotatorClient()
-
-    seconds = 1                                                                         # Set frequency 
+    
+    seconds = constants.SECONDS                                                         # Set frequency 
     for video in video_list:
         if video != '.DS_Store':
             print(f"Start Processing: {video}")

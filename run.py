@@ -12,7 +12,6 @@ if __name__ == "__main__":
     print("Input a number and press enter to process: ", end='')
     num = int(sys.stdin.readline())
     print("\n")
-
     while True:
         if num == 1:
             video_download.download_video_and_title()
@@ -23,4 +22,3 @@ if __name__ == "__main__":
         else:
             print("Please type a number from the menu: ", end="")
             num = int(sys.stdin.readline())
-            
