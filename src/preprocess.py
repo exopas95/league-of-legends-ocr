@@ -337,13 +337,11 @@ def get_drake(df) :
                     total_stack = blue_dra_stack + red_dra_stack
                     if total_stack < 3:
                         blue.append(has_error+seq[total_stack-1]+'DRAKE')
-                        print(seq[total_stack-1])
                     elif total_stack >= 3:
                         if (blue_dra_stack > 4) or (red_dra_stack >= 4):      #red got 4 dragon or blue already got 4 dragon 
                             blue.append(has_error+'ELDER'+'DRAKE')
                         else:
                             blue.append(has_error+seq[2]+'DRAKE')
-                            print(seq[2])
                 elif '빨강' in df.notice.loc[x] :
                     red_dra_stack += 1
                     blue.append(np.nan)
@@ -677,14 +675,12 @@ def get_sentence(df) :
     tmp_idx = int(0)
     for i in range(1,len(sentence)) :
         if 'tower' in tmp :
-#            print(i, tmp, tmp_idx)
             if (i - tmp_idx < 5) & (sentence[i] == tmp) :
                 sentence[i] = 'DUP'
             else :
                 tmp = sentence[i]
                 tmp_idx = i
         else :
-#            print(i, tmp, tmp_idx)
             if (i - tmp_idx < 3) & (sentence[i] == tmp) :
                 sentence[i] = 'DUP'
             else :
