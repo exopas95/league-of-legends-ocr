@@ -12,8 +12,11 @@ def download_video_and_title():
     # Download youtube video
     print("Start downloading...")
     for video_url in youtube_url_list:
+        print(video_url)
+        print(constants.VIDEO_PATH)
         try:
             yt = YouTube(video_url)
+            print(f"Start downloading from {video_url}")
             yt.streams.filter(file_extension='mp4', resolution='1080p')[0].download(constants.VIDEO_PATH)
         except Exception as e:
             print('video_download_error',  e)
