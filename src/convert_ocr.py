@@ -125,13 +125,14 @@ def run():
             df_result.T.to_csv(constants.CSV_PATH + "/raw_" + video + ".csv", encoding="utf8")                   
 
             processed_df = preprocess.result_process(df_result.T)     
+            processed_df.to_csv(constants.CSV_PATH + "/" + video + ".csv", encoding="utf8") # Create csv file
+
 
             final_json = make_json.make_json_file(df_result.T, processed_df)
 
             with open(constants.CSV_PATH + "/" + video + '.json', "w") as json_file:
                 json.dump(final_json, json_file)
 
-            processed_df.to_csv(constants.CSV_PATH + "/" + video + ".csv", encoding="utf8")# Create csv file
             print(f"Video processed and DataFrame created, Video Name: {video}")
 
     print("Completed")

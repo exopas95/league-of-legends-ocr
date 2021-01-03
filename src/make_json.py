@@ -1,11 +1,12 @@
 import pandas as pd
 import numpy as np
 import json
+import re
 
 
 
 def static_info_json(raw_df,df):
-    raw_df = raw_df.copy()
+    raw = raw_df
     df = df.copy()
     cols = {
         'preprocess_cols' : [            
@@ -33,14 +34,43 @@ def static_info_json(raw_df,df):
     } 
 
     df_dict={}
+    
+    def judge_name(x, side):  
+        try:
+            if np.isnan(x):
+                return x
+        except:
+            words = ''.join(x)
+            word = re.sub('[^a-zA-Z가-힣0-9- ]+', '', words)
+            word = word.split(' ')
+            if side == 'blue':
+                ptp_name = word[:2]
+            elif side == 'red':
+                ptp_name = word[:2]
+            return ' '.join(ptp_name)
+
+
+    def get_name(df, side, pos):
+        l=[]
+        for i in cols['preprocess_cols']:
+            if 'player' in i:
+                for x in df[side+'_'+pos+'_port'].values :
+                    if len(x)>=3:
+                        l.append(judge_name(x, side))
+                    else:
+                        l.append(np.nan)
+
+        return max(set(l), key = l.count).rstrip().lstrip()
 
     for i in cols['preprocess_cols']:
         if 'team' in i:
-            df_dict[i] = raw_df[i[:i.rfind('_')+1]+'top_port'].str[0].str[1:-1]
+            df_dict[i] = get_name(raw, i[:i.find('_')], 'top').split(' ')[0]
         elif 'player' in i:
-            df_dict[i] = raw_df[i[:i.rfind('_')+1]+'port'].str[1].str[2:-1]   
-    
-    check_freq = pd.DataFrame(df_dict)
+            try:
+                df_dict[i] = ' '.join(get_name(raw, i[:i.find('_')], i[i.find('_')+1:i.rfind('_')]).split(' ')[1:])
+            except:
+                df_dict[i] = ' '.join(get_name(raw, i[:i.find('_')], i[i.find('_')+1:i.rfind('_')]))    
+
     static_dict = dict.fromkeys(cols['preprocess_cols'],None)
     
     for i in cols['preprocess_cols']:
@@ -57,7 +87,7 @@ def static_info_json(raw_df,df):
             elif 'summon' in i:
                 static_dict[i] = df['100_nashor_herald'].dropna().tolist().count('summon_herald')
             else:
-                static_dict[i] = check_freq[i].mode().iloc[0]
+                static_dict[i] = df_dict[i]
         if 'red' in i:
             if 'set_score' in i:
                 try:
@@ -71,7 +101,7 @@ def static_info_json(raw_df,df):
             elif 'summon' in i:
                 static_dict[i] = df['200_nashor_herald'].dropna().tolist().count('summon_herald')
             else:
-                static_dict[i] = check_freq[i].mode().iloc[0]
+                static_dict[i] = df_dict[i]
                 
     
     static_info = {
@@ -168,8 +198,6 @@ def static_info_json(raw_df,df):
 
 def make_json_df(df):
     final= df
-    final = final.dropna(subset= ['timestamp'])
-    final = final.reset_index(drop=True)
     final = final.set_index('video_timestamp', drop=True)
     return final
 
@@ -291,9 +319,9 @@ def make_json_file(raw_df, df):
     for index in range(len(video_dict['frames'])):
         video_dict['frames'][index]['video_timestamp'] = video_timestamp[index] #insert video_timestamp data
         
-    ingame_timestamp = ingame_timestamp = final['timestamp'].tolist()
+    timestamp = final.index.tolist()
     for index in range(len(video_dict['frames'])):
-        video_dict['frames'][index]['ingame_timestamp'] = video_timestamp[index] #insert ingame_timestamp data
+        video_dict['frames'][index]['ingame_timestamp'] = timestamp[index] #insert ingame_timestamp data
     
     for frame in video_dict['frames']:
         frame['data']= dict()
