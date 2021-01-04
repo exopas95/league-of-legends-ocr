@@ -2,11 +2,12 @@ import pandas as pd
 import numpy as np
 import json
 import re
+import src.preprocess as preprocess
 
 
 
 def static_info_json(raw_df,df):
-    raw = raw_df
+    raw = preprocess.get_game_df(raw_df)
     df = df.copy()
     cols = {
         'preprocess_cols' : [            
@@ -40,7 +41,7 @@ def static_info_json(raw_df,df):
             if np.isnan(x):
                 return x
         except:
-            words = ''.join(x)
+            words = ' '.join(x)
             word = re.sub('[^a-zA-Z가-힣0-9- ]+', '', words)
             word = word.split(' ')
             if side == 'blue':
@@ -59,7 +60,6 @@ def static_info_json(raw_df,df):
                         l.append(judge_name(x, side))
                     else:
                         l.append(np.nan)
-
         return max(set(l), key = l.count).rstrip().lstrip()
 
     for i in cols['preprocess_cols']:
