@@ -39,7 +39,7 @@ def static_info_json(raw_df,df):
     def judge_name(x, side):  
         try:
             if np.isnan(x):
-                return x
+                return ' '.join(x)
         except:
             words = ' '.join(x)
             word = re.sub('[^a-zA-Z가-힣0-9- ]+', '', words)
@@ -59,7 +59,7 @@ def static_info_json(raw_df,df):
                     if len(x)>=3:
                         l.append(judge_name(x, side))
                     else:
-                        l.append(np.nan)
+                        l.append('')
         return max(set(l), key = l.count).rstrip().lstrip()
 
     for i in cols['preprocess_cols']:
