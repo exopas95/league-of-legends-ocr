@@ -73,11 +73,12 @@ def static_info_json(raw_df,df):
 
     static_dict = dict.fromkeys(cols['preprocess_cols'],None)
     
+    
     for i in cols['preprocess_cols']:
         if 'blue' in i:
             if 'set_score' in i:
                 try:
-                    static_dict[i] = int(raw_df[raw_df.blue_set_score.str.len()==8]['blue_set_score'].mode().iloc[0][5:6])
+                    static_dict[i] = int(df['100_set_score'].dropna().mode().iloc[0])
                 except:
                     static_dict[i] = np.nan
             elif 'drake' in i:
@@ -91,7 +92,7 @@ def static_info_json(raw_df,df):
         if 'red' in i:
             if 'set_score' in i:
                 try:
-                    static_dict[i] = int(raw_df[raw_df.red_set_score.str.len()==8]['red_set_score'].mode().iloc[0][2:3])
+                    static_dict[i] = int(df['200_set_score'].dropna().mode().iloc[0])
                 except:
                     static_dict[i] = np.nan
             elif 'drake' in i:
