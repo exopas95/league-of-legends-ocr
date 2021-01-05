@@ -186,7 +186,7 @@ def get_game_df(df) :
     df['timestamp'] = df['timestamp'].apply(lambda x: np.nan if len(x)==0 else x)   # Replace empty list into nan
     timestamps = df.dropna(subset=['timestamp']).index                              # get index of rows with timestamp
     game_df = df.loc[timestamps[0]:timestamps[-1]]                                     # Get remain of the start to the end of a game
-    return game_df.dropna(subset=['timestamp'])
+    return game_df.dropna(subset=['timestamp'])                                    # remove replay
 
 """ Figure out language of the game
     - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
@@ -586,6 +586,10 @@ def get_set_score(df, side) :
             l.append(np.nan)
     return make_monotonic(l, 5)
 
+""" Get Dictionary of User's ID from input dataframe
+    - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
+    - type df: dataframe
+"""
 def get_user_dic(df) :
     str_set = constants.cols[0:10]          # str_set = ['blue_top_port', ... 'red_sup_port']
     user_dic = {}                           # return dictionary
@@ -680,6 +684,15 @@ def calculator_similar(x,y) :
 
 def get_sentence(df) :
 
+
+""" Get DataFrame of classified notice from input dataframe
+    - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
+    - type df: dataframe
+"""
+def get_sentence(df) :
+    # make list to str such as
+    # ['AF', 'Mystic', '님', '이', '서', 'T', 'SOHwan', '님', '을', '처치', '했습니다', '!']
+    # to 'AFMystic님이서TSOHwan님을처치했습니다'
     def list_to_str(x) :
         if flag_is_korean:
             result = ''.join(x)
@@ -704,7 +717,10 @@ def get_sentence(df) :
         )
         return text            
 
-
+    # judge the notice x is what about
+    # 0.65 is asymptotical value.
+    # usually when max similarity <= 0.5~ 0.6 it is just nuisance
+    # when max similarity >= 0.7 , it is worthwhile to consider
     def judge_sentence(x) :
         if flag_is_korean:
             if max(x) <= 0.65 :
@@ -746,14 +762,12 @@ def get_sentence(df) :
     tmp_idx = int(0)
     for i in range(1,len(sentence)) :
         if 'tower' in tmp :
-#            print(i, tmp, tmp_idx)
             if (i - tmp_idx < 5) & (sentence[i] == tmp) :
                 sentence[i] = 'DUP'
             else :
                 tmp = sentence[i]
                 tmp_idx = i
         else :
-#            print(i, tmp, tmp_idx)
             if (i - tmp_idx < 3) & (sentence[i] == tmp) :
                 sentence[i] = 'DUP'
             else :
@@ -763,8 +777,7 @@ def get_sentence(df) :
 
     return sentence
 
-
-def get_kill(df, user_dic) :      
+def get_kill(df, user_dic) :
     df_use = df.copy()
     df_use['sentence'] = get_sentence(df_use)
     
