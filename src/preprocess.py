@@ -743,7 +743,7 @@ def get_sentence(df) :
         
         for i in constants.eng_text_str :
             similar[i] = similar.text.apply(
-                lambda x : calculator_similar(x, constants.eng_total_sentencetotal_sentence[i])
+                lambda x : calculator_similar(x, constants.eng_total_sentence[i])
             )
 
     real_text = []
