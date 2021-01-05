@@ -106,10 +106,44 @@ vec = {
                       (0.305, 0.936),(0.305, 0.977),(0.687, 0.815),
                       (0.687, 0.856),(0.687, 0.896),(0.687, 0.936),(0.687, 0.977)]}
     
-    
-    
-# main text
+# korean main text
 total_sentence = {
+    'start_sentence' : '소환사의협곡에오신것을환영합니다',
+    'minion_30_sentence' : '미니언생성까지초남았습니다',
+    'minion_sentence' : '미니언이생성 되었습니다',
+    'first_blood_sentence' : '선취점',
+    'kill_sentence_kv_0' : '님이님을처치했습니다',
+    'kill_sentence_k_0' : '님이학살중입니다',
+    'kill_sentence_k_1' : '님을도저히막을수없습니다',
+    'kill_sentence_n_0' : '연속킬차단',
+    'kill_sentence_k_2' : '님이미쳐날뛰고있습니다',
+    'kill_sentence_n_1' :  '마지막적처치',
+    'kill_sentence_n_2' : '더블킬',
+    'kill_sentence_n_3' : '트리플킬',
+    'kill_sentence_n_4' : '쿼드라킬',
+    'kill_sentence_n_5' : '펜타킬',
+    'red_dragon_sentence' : '빨강팀이드래곤을처치했습니다',
+    'blue_dragon_sentence' : '파랑팀이드래곤을처치했습니다',
+    'blue_tower_sentence' : '빨강팀의포탑이파괴되었습니다',
+    'red_tower_sentence' : '파랑팀포탑이파괴되었습니다',
+    'blue_first_tower_sentence' : '파랑팀이첫번째포탑을파괴했습니다',
+    'red_first_tower_sentence' : '빨강팀이첫번째포탑을파괴했습니다',
+    #herald_sentence = ??
+    'herald_summon_sentence' : '팀이협곡의전령을소환했습니다',
+    'nashor_sentence' : '팀이내셔남작을처치했습니다',
+    #억제기
+    'inhibitor_sentence' : '님이팀억제기를파괴했습니다'
+    }
+
+text_str = ['start_sentence', 'minion_30_sentence', 'minion_sentence', 'first_blood_sentence',
+            'kill_sentence_kv_0', 'kill_sentence_k_0', 'kill_sentence_k_1', 'kill_sentence_n_0', 'kill_sentence_k_2',
+            'kill_sentence_n_1', 'kill_sentence_n_2', 'kill_sentence_n_3', 'kill_sentence_n_4', 'kill_sentence_n_5',
+            'red_dragon_sentence', 'blue_dragon_sentence', 'blue_tower_sentence',
+            'red_tower_sentence', 'blue_first_tower_sentence', 'red_first_tower_sentence',
+            'herald_summon_sentence', 'nashor_sentence', 'inhibitor_sentence']    
+    
+# english main text
+eng_total_sentence = {
     'start_sentence' : 'welcome to summoner\'s rift',
     'minion_30_sentence' : 'thirty seconds until minions spawn',
     'minion_sentence' : 'minions have spawned',
@@ -120,7 +154,7 @@ total_sentence = {
     'red_first_tower_sentence' : 'red team destroyed the first turret'
     }
 
-text_str = ['start_sentence', 'minion_30_sentence', 'minion_sentence', 
+eng_text_str = ['start_sentence', 'minion_30_sentence', 'minion_sentence', 
             'kill_sentence', 'blue_tower_sentence', 'red_tower_sentence', 
             'blue_first_tower_sentence', 'red_first_tower_sentence',
            ]

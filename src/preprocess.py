@@ -7,9 +7,6 @@ import src.constants as constants
 import operator
 
 
-def language(df):
-    
-
 """ Returns [kill, death, assist] if input word can be decrypted else nan
     - param x: Input word will define which is kda or not
     - type x: str
@@ -191,31 +188,17 @@ def get_game_df(df) :
     game_df = df.loc[timestamps[0]:timestamps[-1]]                                     # Get remain of the start to the end of a game
     return game_df.dropna(subset=['timestamp'])
 
-""" Get first 1 minute df from minion notice to figure out language of game
-    - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
-    - type df: dataframe
-"""
-def get_start_df(df) :
-    game_df = get_game_df(df)      
-    game_df['timestamp'] = game_df['timestamp'].apply(' '.join)
-    game_df['timestamp'] = game_df['timestamp'].str.replace(':','.')
-    game_df['timestamp'] = game_df['timestamp'].str.replace('\'','')
-    game_df['timestamp'] = game_df['timestamp'].str.replace('[^0-9.]+', '',regex=True)
-    game_df['timestamp'] = game_df['timestamp'].apply(lambda x: np.nan if x=='' else x)
-    game_df['timestamp'] = game_df.timestamp.astype(float).fillna(0.0)
-    start_index = game_df.index[(game_df['timestamp']>=0.35) & (game_df['timestamp']<=1.35)].tolist()
-    return game_df.loc[min(start_index):max(start_index)]
-
 """ Figure out language of the game
     - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
     - type df: dataframe
 """
 def is_korean(df):
-    start_df = get_start_df(df)
+    game_df = get_game_df(df)
     is_korean = True
-    for x in df.index:
-        if 'minions' in ' '.join(df.notice.loc[x]).lower():
+    for x in game_df.index:
+        if 'minions' in ' '.join(game_df.notice.loc[x]).lower() or 'dragon' in ' '.join(game_df.notice.loc[x]).lower() or 'tower' in ' '.join(game_df.notice.loc[x]).lower():
             is_korean = False
+            break
     return is_korean
 
 """ Get list of timestamp as string from input dataframe 
@@ -365,8 +348,8 @@ def get_drake(df) :
     if len(seq) > 0:
         for x in df.index :
             if x in df_drake.index:
-                if '드래곤' in ' '.join(df.notice.loc[x]).lower() or 'dragon' in ' '.join(df.notice.loc[x]).lower() :
-                    if '파랑' in ' '.join(df.notice.loc[x]).lower() or 'blue' in ' '.join(df.notice.loc[x]).lower() :
+                if '드래곤' in df.notice.loc[x] or 'dragon' in ' '.join(df.notice.loc[x]).lower() :
+                    if '파랑' in df.notice.loc[x] or 'blue' in ' '.join(df.notice.loc[x]).lower() :
                         blue_dra_stack += 1
                         red.append(np.nan)
                         total_stack = blue_dra_stack + red_dra_stack
@@ -377,7 +360,7 @@ def get_drake(df) :
                                 blue.append(has_error+'ELDER'+'DRAKE')
                             else:
                                 blue.append(has_error+seq[2]+'DRAKE')
-                    elif '빨강' in ' '.join(df.notice.loc[x]).lower() or 'red' in ' '.join(df.notice.loc[x]).lower() :
+                    elif '빨강' in df.notice.loc[x] or 'red' in ' '.join(df.notice.loc[x]).lower() :
                         red_dra_stack += 1
                         blue.append(np.nan)
                         total_stack = blue_dra_stack + red_dra_stack
@@ -401,8 +384,8 @@ def get_drake(df) :
     else: 
         for x in df.index :
             if x in df_drake.index:
-                if '드래곤' in ' '.join(df.notice.loc[x]).lower() or 'dragon' in ' '.join(df.notice.loc[x]).lower() :
-                    if '파랑' in ' '.join(df.notice.loc[x]).lower() or 'blue' in ' '.join(df.notice.loc[x]).lower() :
+                if '드래곤' in df.notice.loc[x] or 'dragon' in ' '.join(df.notice.loc[x]).lower() :
+                    if '파랑' in df.notice.loc[x] or 'blue' in ' '.join(df.notice.loc[x]).lower() :
                         blue_dra_stack += 1
                         red.append(np.nan)
                         total_stack = blue_dra_stack + red_dra_stack
@@ -413,7 +396,7 @@ def get_drake(df) :
                                 blue.append(has_error+'ELDER'+'DRAKE')
                             else:
                                 blue.append(has_error+'DRAKE')
-                    elif '빨강' in ' '.join(df.notice.loc[x]).lower() or 'red' in ' '.join(df.notice.loc[x]).lower() :
+                    elif '빨강' in df.notice.loc[x] or 'red' in ' '.join(df.notice.loc[x]).lower() :
                         red_dra_stack += 1
                         blue.append(np.nan)
                         total_stack = blue_dra_stack + red_dra_stack
@@ -450,21 +433,21 @@ def get_nashor_herald(df) :
     df_object = pd.concat([df_nashor, df_herald])
     for x in df.index :
         if x in df_object.index :
-            if '파랑' in ' '.join(df.notice.loc[x]).lower() or 'blue' in ' '.join(df.notice.loc[x]).lower() :
-                if '남작' in ' '.join(df.notice.loc[x]).lower() or 'nashor' in ' '.join(df.notice.loc[x]).lower() :
+            if '파랑' in df.notice.loc[x] or 'blue' in ' '.join(df.notice.loc[x]).lower() :
+                if '남작' in df.notice.loc[x] or 'nashor' in ' '.join(df.notice.loc[x]).lower() :
                     red.append(np.nan)
                     blue.append('nashor')
-                elif '전령' in ' '.join(df.notice.loc[x]).lower() or 'herald' in ' '.join(df.notice.loc[x]).lower() :
+                elif '전령' in df.notice.loc[x] or 'herald' in ' '.join(df.notice.loc[x]).lower() :
                     red.append(np.nan)
                     blue.append('summon_herald')
                 else:
                     red.append(np.nan)
                     blue.append(np.nan)
-            elif '빨강' in ' '.join(df.notice.loc[x]).lower() or 'red' in ' '.join(df.notice.loc[x]).lower() :
-                if '남작' in ' '.join(df.notice.loc[x]).lower() or 'nashor' in ' '.join(df.notice.loc[x]).lower() :
+            elif '빨강' in df.notice.loc[x] or 'red' in ' '.join(df.notice.loc[x]).lower() :
+                if '남작' in df.notice.loc[x] or 'nashor' in ' '.join(df.notice.loc[x]).lower() :
                     blue.append(np.nan)
                     red.append('nashor')
-                elif '전령' in ' '.join(df.notice.loc[x]).lower() or 'herald' in ' '.join(df.notice.loc[x]).lower() :
+                elif '전령' in df.notice.loc[x] or 'herald' in ' '.join(df.notice.loc[x]).lower() :
                     blue.append(np.nan)
                     red.append('summon_herald')
                 else:
@@ -671,29 +654,49 @@ def calculator_similar_id(x,y) :
     return cnt/len(y)
 
 def calculator_similar(x,y) :
-    cnt = 0
-    try :
-        for x_char in x.split(' '):
-            if x_char.lower() in ['dragon','nashor','herald']:
-                return 0
-            for y_char in y.split(' ') :
-                y_char = re.sub('[^a-zA-Z가-힣0-9- ]+', '', y_char)
-                if x_char.lower() == y_char.lower() :
-                    cnt += 1
-        return cnt/len(y.split(' '))
-    except :
-        return 0
+    if flag_is_korean:
+        cnt = 0
+        try :
+            for x_char in x:
+                for y_char in y :
+                    if x_char == y_char :
+                        cnt += 1
+        except :
+            cnt = 0
+        return cnt/len(y)   
+    else:
+        cnt = 0
+        try :
+            for x_char in x.split(' '):
+                if x_char.lower() in ['dragon','nashor','herald']:
+                    return 0
+                for y_char in y.split(' ') :
+                    y_char = re.sub('[^a-zA-Z가-힣0-9- ]+', '', y_char)
+                    if x_char.lower() == y_char.lower() :
+                        cnt += 1
+            return cnt/len(y.split(' '))
+        except :
+            return 0
 
 def get_sentence(df) :
 
     def list_to_str(x) :
-        result = ' '.join(x)
-        result = re.sub('[^a-zA-Z가-힣0-9- ]+', '', result)
-        if result :
+        if flag_is_korean:
+            result = ''.join(x)
+            result = re.sub('[^a-zA-Z가-힣0-9]+', '', result) # alphabet, number, korean is all things we are interested in
+            if result :
+                return result
+            else :
+                result = np.nan
             return result
-        else :
-            result = np.nan
-        return result
+        else:    
+            result = ' '.join(x)
+            result = re.sub('[^a-zA-Z가-힣0-9- ]+', '', result)
+            if result :
+                return result
+            else :
+                result = np.nan
+            return result
 
     def notice_cleaner(df) :
         text = df.notice.apply(
@@ -703,25 +706,38 @@ def get_sentence(df) :
 
 
     def judge_sentence(x) :
-        if max(x) <= 0.9 :
-            return np.nan
-        return x.astype(float).idxmax()
+        if flag_is_korean:
+            if max(x) <= 0.65 :
+                return np.nan
+            return x.astype(float).idxmax()
+        else:            
+            if max(x) <= 0.9 :
+                return np.nan
+            return x.astype(float).idxmax()
 
-
-    similar = pd.DataFrame(columns=['text']+constants.text_str)
-    similar['text'] = notice_cleaner(df)
+    if flag_is_korean:
+        similar = pd.DataFrame(columns=['text']+constants.text_str) # similarity matrix
+        similar['text'] = notice_cleaner(df)
     
-    for i in constants.text_str :
-        similar[i] = similar.text.apply(
-            lambda x : calculator_similar(x, constants.total_sentence[i])
-        )
-
+        for i in constants.text_str :
+            similar[i] = similar.text.apply(
+                lambda x : calculator_similar(x, constants.total_sentence[i])
+            )
+        
+    else:   
+        similar = pd.DataFrame(columns=['text']+constants.eng_text_str)
+        similar['text'] = notice_cleaner(df)
+        
+        for i in constants.eng_text_strtext_str :
+            similar[i] = similar.text.apply(
+                lambda x : calculator_similar(x, constants.eng_total_sentencetotal_sentence[i])
+            )
 
     real_text = []
     for i in range(len(similar)) :
         real_text.append(judge_sentence((similar.iloc[i,:][1:])))
 
-    similar['real_text'] = real_text
+    similar['real_text'] = real_text  # this is what we want 
     
     
     sentence = similar.real_text.copy().fillna("0")
@@ -748,30 +764,79 @@ def get_sentence(df) :
     return sentence
 
 
-def get_kill(df, user_dic) :
+def get_kill(df, user_dic) :      
     df_use = df.copy()
     df_use['sentence'] = get_sentence(df_use)
     
     def killer_victim_find(x):
-        killer_id, victim_id = np.nan, np.nan
-        cnt = 0
-        for text in x :
-            for line in user_dic:
-                user_id = user_dic.get(line)
-                if calculator_similar_id(text, user_id) >= 0.75 :
-                    try :
-                        if( type(user_id) == int or type(user_id) == str) and (cnt == 0) :
-                            killer_id = user_id 
-                            cnt += 1
-                        elif( type(user_id) == int or type(user_id) == str) and (cnt == 1) :
-                            victim_id = user_id
-                            cnt += 1
-                    except :
-                        continue
-        if cnt == 2 :
-            return killer_id, victim_id
-        else :
-            return np.nan, np.nan
+        if flag_is_korean:
+            killer_id, victim_id = np.nan, np.nan
+            cnt, nim_cnt = 0, 0
+            tmp = x.copy()
+            for text in tmp :
+                if text == '님' :
+                    nim_cnt += 1
+                max_val, max_str = 0, np.nan
+                for line in user_dic:
+                    user_id = user_dic.get(line)
+                    if ( calculator_similar_id(text, user_id) > max_val )  and ( calculator_similar_id(text, user_id) >= 0.75 ) :
+                        max_val = calculator_similar_id(text, user_id)
+                        max_str = user_id
+                if max_val >= 0.75 :
+                    tmp[ tmp.index(text) ] = max_str
+                for line in user_dic :
+                    user_id = user_dic.get(line)
+                    if (calculator_similar_id(text, user_id) == max_val) and (max_val >= 0.75)  :
+                        try :
+                            if( type(user_id) == int or type(user_id) == str) and (cnt == 0) :
+                                killer_id = user_id 
+                                cnt += 1
+                            elif( type(user_id) == int or type(user_id) == str) and (cnt == 1) :
+                                victim_id = user_id
+                                cnt += 1
+                            elif(type(user_id) == int or type(user_id) == str) and (cnt >= 2) :
+                                cnt += 1    
+                        except :
+                            continue
+            if cnt == 2 :
+                return killer_id, victim_id
+            elif nim_cnt == 2 :
+                try :
+                    loc = []
+                    cnt, check = 0, 0
+                    for i in tmp :
+                        if i == '님' :
+                            loc.append(cnt-1)
+                            check += 1
+                        cnt += 1
+                    if check == 2 :
+                        killer_id = tmp[loc[0]]
+                        victim_id = tmp[loc[1]]
+                        return killer_id, victim_id
+                except :
+                    return np.nan, np.nan
+            else :
+                return np.nan, np.nan
+        else:    
+            killer_id, victim_id = np.nan, np.nan
+            cnt = 0
+            for text in x :
+                for line in user_dic:
+                    user_id = user_dic.get(line)
+                    if calculator_similar_id(text, user_id) >= 0.75 :
+                        try :
+                            if( type(user_id) == int or type(user_id) == str) and (cnt == 0) :
+                                killer_id = user_id 
+                                cnt += 1
+                            elif( type(user_id) == int or type(user_id) == str) and (cnt == 1) :
+                                victim_id = user_id
+                                cnt += 1
+                        except :
+                            continue
+            if cnt == 2 :
+                return killer_id, victim_id
+            else :
+                return np.nan, np.nan
 
     killer, victim = [], []
     for x in range(len(df_use.index)) :
@@ -779,7 +844,10 @@ def get_kill(df, user_dic) :
             killer.append( np.nan )
             victim.append( np.nan )
         elif 'kill' in df_use.sentence[x] :
-            ki_0, vi_0 = killer_victim_find(df_use.notice[x])
+            try :
+                ki_0, vi_0 = killer_victim_find(df_use.notice[x])
+            except :
+                ki_0, vi_0 = np.nan, np.nan
             try :
                 ki_1, vi_1 = killer_victim_find(df_use.notice[x+1])
             except :
@@ -815,6 +883,51 @@ def get_kill(df, user_dic) :
             killer.append(np.nan)
             victim.append(np.nan)
     return killer, victim
+    
+
+##########예전 killer, victim       
+    # killer, victim = [], []
+    # for x in range(len(df_use.index)) :
+    #     if 'blood' in df_use.sentence[x] :
+    #         killer.append( np.nan )
+    #         victim.append( np.nan )
+    #     elif 'kill' in df_use.sentence[x] :
+    #         ki_0, vi_0 = killer_victim_find(df_use.notice[x])
+    #         try :
+    #             ki_1, vi_1 = killer_victim_find(df_use.notice[x+1])
+    #         except :
+    #             ki_1, vi_1 = np.nan, np.nan
+    #         try :
+    #             ki_2, vi_2 = killer_victim_find(df_use.notice[x+2])
+    #         except :
+    #             ki_2, vi_2 = np.nan, np.nan
+                
+    #         try :
+    #             if ( type(ki_0) == int or type(ki_0) == str)  :
+    #                 killer.append(ki_0)
+    #             elif ( type(ki_1) == int or type(ki_1) == str) :
+    #                 killer.append(ki_1)
+    #             elif ( type(ki_2) == int or type(ki_2) == str) :
+    #                 killer.append(ki_2)
+    #             else :
+    #                 killer.append( np.nan )
+    #         except :
+    #             killer.append( np.nan )
+    #         try :
+    #             if ( type(vi_0) == int or type(vi_0) == str)  :
+    #                 victim.append(vi_0)
+    #             elif ( type(vi_1) == int or type(vi_1) == str) :
+    #                 victim.append(vi_1)
+    #             elif ( type(vi_2) == int or type(vi_2) == str) :
+    #                 victim.append(vi_2)
+    #             else :
+    #                 victim.append( np.nan )
+    #         except :
+    #             victim.append( np.nan )
+    #     else :
+    #         killer.append(np.nan)
+    #         victim.append(np.nan)
+    # return killer, victim
 
 def get_tower(df) :
     df['sentence'] = get_sentence(df)
@@ -843,8 +956,10 @@ def get_tower(df) :
     - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
     - type df: dataframe
 """
-def result_process(df) :
+def result_process(df, is_korean) :
     game_df = get_game_df(df)
+    global flag_is_korean
+    flag_is_korean = is_korean
     user_dic = get_user_dic(df)
     processed_df = pd.DataFrame({"video_timestamp": get_video_timestamp(game_df),
                                 'timestamp' : get_timestamp(game_df),
