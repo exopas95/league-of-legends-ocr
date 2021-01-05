@@ -682,9 +682,6 @@ def calculator_similar(x,y) :
         except :
             return 0
 
-def get_sentence(df) :
-
-
 """ Get DataFrame of classified notice from input dataframe
     - param df: Input dataframe (Outcome from Vision) which will be preprocessed 
     - type df: dataframe
