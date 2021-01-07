@@ -2,9 +2,9 @@ import os
 
 # directory path
 CURRENT_PATH = os.getcwd()
-VIDEO_PATH = CURRENT_PATH + "\\data\\video"
-IMAGE_PATH = CURRENT_PATH + "\\data\\img"
-CSV_PATH = CURRENT_PATH + "\\data\\csv"
+VIDEO_PATH = CURRENT_PATH + "/data/video"
+IMAGE_PATH = CURRENT_PATH + "/data/img"
+CSV_PATH = CURRENT_PATH + "/data/csv"
 SECONDS = 1
 
 # API KEY and credential for GCP
