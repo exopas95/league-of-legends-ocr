@@ -1,5 +1,5 @@
-# opgg-ocr
-OP.GG
+# League of Legends Gamve Video OCR
+Analyzing League of Legends game video with GCP OCR
 
 ## Introduction
 This repository contains code for Optical Character Recognition on League of Legends game video.
